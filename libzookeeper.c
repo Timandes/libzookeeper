@@ -1,21 +1,3 @@
-/*
-  +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
-  +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2013 The PHP Group                                |
-  +----------------------------------------------------------------------+
-  | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
-  | available through the world-wide-web at the following url:           |
-  | http://www.php.net/license/3_01.txt                                  |
-  | If you did not receive a copy of the PHP license and are unable to   |
-  | obtain it through the world-wide-web, please send a note to          |
-  | license@php.net so we can mail you a copy immediately.               |
-  +----------------------------------------------------------------------+
-  | Author:                                                              |
-  +----------------------------------------------------------------------+
-*/
-
 /* $Id$ */
 
 #ifdef HAVE_CONFIG_H
@@ -39,8 +21,8 @@ static int le_libzookeeper;
  * Every user visible function must have an entry in libzookeeper_functions[].
  */
 const zend_function_entry libzookeeper_functions[] = {
-	PHP_FE(confirm_libzookeeper_compiled,	NULL)		/* For testing, remove later. */
-	PHP_FE_END	/* Must be the last line in libzookeeper_functions[] */
+    PHP_FE(confirm_libzookeeper_compiled,   NULL)       /* For testing, remove later. */
+    PHP_FE_END  /* Must be the last line in libzookeeper_functions[] */
 };
 /* }}} */
 
@@ -48,19 +30,19 @@ const zend_function_entry libzookeeper_functions[] = {
  */
 zend_module_entry libzookeeper_module_entry = {
 #if ZEND_MODULE_API_NO >= 20010901
-	STANDARD_MODULE_HEADER,
+    STANDARD_MODULE_HEADER,
 #endif
-	"libzookeeper",
-	libzookeeper_functions,
-	PHP_MINIT(libzookeeper),
-	PHP_MSHUTDOWN(libzookeeper),
-	PHP_RINIT(libzookeeper),		/* Replace with NULL if there's nothing to do at request start */
-	PHP_RSHUTDOWN(libzookeeper),	/* Replace with NULL if there's nothing to do at request end */
-	PHP_MINFO(libzookeeper),
+    "libzookeeper",
+    libzookeeper_functions,
+    PHP_MINIT(libzookeeper),
+    PHP_MSHUTDOWN(libzookeeper),
+    PHP_RINIT(libzookeeper),        /* Replace with NULL if there's nothing to do at request start */
+    PHP_RSHUTDOWN(libzookeeper),    /* Replace with NULL if there's nothing to do at request end */
+    PHP_MINFO(libzookeeper),
 #if ZEND_MODULE_API_NO >= 20010901
-	"0.1", /* Replace with version number for your extension */
+    "0.1", /* Replace with version number for your extension */
 #endif
-	STANDARD_MODULE_PROPERTIES
+    STANDARD_MODULE_PROPERTIES
 };
 /* }}} */
 
@@ -83,8 +65,8 @@ PHP_INI_END()
 /* Uncomment this function if you have INI entries
 static void php_libzookeeper_init_globals(zend_libzookeeper_globals *libzookeeper_globals)
 {
-	libzookeeper_globals->global_value = 0;
-	libzookeeper_globals->global_string = NULL;
+    libzookeeper_globals->global_value = 0;
+    libzookeeper_globals->global_string = NULL;
 }
 */
 /* }}} */
@@ -93,10 +75,16 @@ static void php_libzookeeper_init_globals(zend_libzookeeper_globals *libzookeepe
  */
 PHP_MINIT_FUNCTION(libzookeeper)
 {
-	/* If you have INI entries, uncomment these lines 
-	REGISTER_INI_ENTRIES();
-	*/
-	return SUCCESS;
+    /* If you have INI entries, uncomment these lines 
+    REGISTER_INI_ENTRIES();
+    */
+
+    zend_class_entry class_entry;
+
+    INIT_CLASS_ENTRY(class_entry, "ZookeeperClient", NULL);
+    zookeeper_client_class_entry = zend_register_internal_class_ex(&class_entry, NULL, NULL TSRMLS_CC);
+
+    return SUCCESS;
 }
 /* }}} */
 
@@ -104,10 +92,10 @@ PHP_MINIT_FUNCTION(libzookeeper)
  */
 PHP_MSHUTDOWN_FUNCTION(libzookeeper)
 {
-	/* uncomment this line if you have INI entries
-	UNREGISTER_INI_ENTRIES();
-	*/
-	return SUCCESS;
+    /* uncomment this line if you have INI entries
+    UNREGISTER_INI_ENTRIES();
+    */
+    return SUCCESS;
 }
 /* }}} */
 
@@ -116,7 +104,7 @@ PHP_MSHUTDOWN_FUNCTION(libzookeeper)
  */
 PHP_RINIT_FUNCTION(libzookeeper)
 {
-	return SUCCESS;
+    return SUCCESS;
 }
 /* }}} */
 
@@ -125,7 +113,7 @@ PHP_RINIT_FUNCTION(libzookeeper)
  */
 PHP_RSHUTDOWN_FUNCTION(libzookeeper)
 {
-	return SUCCESS;
+    return SUCCESS;
 }
 /* }}} */
 
@@ -133,13 +121,13 @@ PHP_RSHUTDOWN_FUNCTION(libzookeeper)
  */
 PHP_MINFO_FUNCTION(libzookeeper)
 {
-	php_info_print_table_start();
-	php_info_print_table_header(2, "libzookeeper support", "enabled");
-	php_info_print_table_end();
+    php_info_print_table_start();
+    php_info_print_table_header(2, "libzookeeper support", "enabled");
+    php_info_print_table_end();
 
-	/* Remove comments if you have entries in php.ini
-	DISPLAY_INI_ENTRIES();
-	*/
+    /* Remove comments if you have entries in php.ini
+    DISPLAY_INI_ENTRIES();
+    */
 }
 /* }}} */
 
@@ -153,16 +141,16 @@ PHP_MINFO_FUNCTION(libzookeeper)
    Return a string to confirm that the module is compiled in */
 PHP_FUNCTION(confirm_libzookeeper_compiled)
 {
-	char *arg = NULL;
-	int arg_len, len;
-	char *strg;
+    char *arg = NULL;
+    int arg_len, len;
+    char *strg;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
-		return;
-	}
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
+        return;
+    }
 
-	len = spprintf(&strg, 0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "libzookeeper", arg);
-	RETURN_STRINGL(strg, len, 0);
+    len = spprintf(&strg, 0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "libzookeeper", arg);
+    RETURN_STRINGL(strg, len, 0);
 }
 /* }}} */
 /* The previous line is meant for vim and emacs, so it can correctly fold and 

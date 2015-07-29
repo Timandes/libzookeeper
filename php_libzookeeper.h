@@ -1,21 +1,3 @@
-/*
-  +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
-  +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2013 The PHP Group                                |
-  +----------------------------------------------------------------------+
-  | This source file is subject to version 3.01 of the PHP license,      |
-  | that is bundled with this package in the file LICENSE, and is        |
-  | available through the world-wide-web at the following url:           |
-  | http://www.php.net/license/3_01.txt                                  |
-  | If you did not receive a copy of the PHP license and are unable to   |
-  | obtain it through the world-wide-web, please send a note to          |
-  | license@php.net so we can mail you a copy immediately.               |
-  +----------------------------------------------------------------------+
-  | Author:                                                              |
-  +----------------------------------------------------------------------+
-*/
-
 /* $Id$ */
 
 #ifndef PHP_LIBZOOKEEPER_H
@@ -25,11 +7,11 @@ extern zend_module_entry libzookeeper_module_entry;
 #define phpext_libzookeeper_ptr &libzookeeper_module_entry
 
 #ifdef PHP_WIN32
-#	define PHP_LIBZOOKEEPER_API __declspec(dllexport)
+#   define PHP_LIBZOOKEEPER_API __declspec(dllexport)
 #elif defined(__GNUC__) && __GNUC__ >= 4
-#	define PHP_LIBZOOKEEPER_API __attribute__ ((visibility("default")))
+#   define PHP_LIBZOOKEEPER_API __attribute__ ((visibility("default")))
 #else
-#	define PHP_LIBZOOKEEPER_API
+#   define PHP_LIBZOOKEEPER_API
 #endif
 
 #ifdef ZTS
@@ -42,15 +24,15 @@ PHP_RINIT_FUNCTION(libzookeeper);
 PHP_RSHUTDOWN_FUNCTION(libzookeeper);
 PHP_MINFO_FUNCTION(libzookeeper);
 
-PHP_FUNCTION(confirm_libzookeeper_compiled);	/* For testing, remove later. */
+PHP_FUNCTION(confirm_libzookeeper_compiled);    /* For testing, remove later. */
 
 /* 
-  	Declare any global variables you may need between the BEGIN
-	and END macros here:     
+    Declare any global variables you may need between the BEGIN
+    and END macros here:     
 
 ZEND_BEGIN_MODULE_GLOBALS(libzookeeper)
-	long  global_value;
-	char *global_string;
+    long  global_value;
+    char *global_string;
 ZEND_END_MODULE_GLOBALS(libzookeeper)
 */
 
@@ -70,7 +52,30 @@ ZEND_END_MODULE_GLOBALS(libzookeeper)
 #define LIBZOOKEEPER_G(v) (libzookeeper_globals.v)
 #endif
 
-#endif	/* PHP_LIBZOOKEEPER_H */
+/* class ZookeeperClient { */
+zend_class_entry *zookeeper_client_class_entry;
+
+ZEND_BEGIN_ARG_INFO_EX(connect_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, host)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_get, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
+zend_function_entry zookeeper_client_method_entry[] = {
+    PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
+
+    { NULL, NULL, NULL }
+};
+
+PHP_METHOD(ZookeeperClient, connect);
+PHP_METHOD(ZookeeperClient, get);
+
+/* } ZookeeperClient */
+
+#endif  /* PHP_LIBZOOKEEPER_H */
 
 
 /*
