@@ -159,6 +159,23 @@ PHP_FUNCTION(confirm_libzookeeper_compiled)
    follow this convention for the convenience of others editing your code.
 */
 
+PHP_METHOD(ZookeeperClient, connect)
+{
+    char *hosts = NULL;
+    int hosts_len = 0;
+    zhandle_t *zk_handle = NULL;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|f!l", &hosts, &hosts_len) == FAILURE) {
+        return;
+    }
+
+    zk_handle = zookeeper_init(hosts, NULL, 10, 0, NULL, 0);
+    if (NULL == zk_handle) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "Fail to initialize zookeeper client");
+    }
+}
+PHP_METHOD(ZookeeperClient, get);
+
 
 /*
  * Local variables:
