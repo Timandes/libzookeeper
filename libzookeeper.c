@@ -8,6 +8,7 @@
 #include "php_ini.h"
 #include "ext/standard/info.h"
 #include "php_libzookeeper.h"
+#include "zookeeper_client.h"
 
 /* If you declare any globals in php_libzookeeper.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(libzookeeper)
@@ -79,10 +80,8 @@ PHP_MINIT_FUNCTION(libzookeeper)
     REGISTER_INI_ENTRIES();
     */
 
-    zend_class_entry class_entry;
-
-    INIT_CLASS_ENTRY(class_entry, "ZookeeperClient", NULL);
-    zookeeper_client_class_entry = zend_register_internal_class_ex(&class_entry, NULL, NULL TSRMLS_CC);
+    // zookeeper_client.h
+    register_zookeeper_client_class(TSRMLS_C);
 
     return SUCCESS;
 }
@@ -158,23 +157,6 @@ PHP_FUNCTION(confirm_libzookeeper_compiled)
    function definition, where the functions purpose is also documented. Please 
    follow this convention for the convenience of others editing your code.
 */
-
-PHP_METHOD(ZookeeperClient, connect)
-{
-    char *hosts = NULL;
-    int hosts_len = 0;
-    zhandle_t *zk_handle = NULL;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|f!l", &hosts, &hosts_len) == FAILURE) {
-        return;
-    }
-
-    zk_handle = zookeeper_init(hosts, NULL, 10, 0, NULL, 0);
-    if (NULL == zk_handle) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "Fail to initialize zookeeper client");
-    }
-}
-PHP_METHOD(ZookeeperClient, get);
 
 
 /*
