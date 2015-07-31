@@ -61,6 +61,12 @@ tests/*.log
 tests/*.out
 tests/*.php
 tests/*.sh
+tests/*/*.exp
+tests/*/*.diff
+tests/*/*.log
+tests/*/*.out
+tests/*/*.php
+tests/*/*.sh
 run-tests.php
 
 # Others
