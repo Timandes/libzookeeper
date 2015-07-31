@@ -3,15 +3,20 @@
 #ifndef ZOOKEEPER_CLIENT_H
 #define ZOOKEEPER_CLIENT_H
 
+#include <php.h>
 #include <zookeeper/zookeeper.h>
 
 /* class ZookeeperClient { */
 zend_class_entry *zookeeper_client_class_entry;
 
+PHP_METHOD(ZookeeperClient, connect);
+PHP_METHOD(ZookeeperClient, get);
+
 /* } ZookeeperClient */
 
 /* Storage object of `ZookeeperClient` */
 typedef struct _zookeeper_client_storage_object {
+	zend_object	object;
     zhandle_t *zk_handle;
 } zookeeper_client_storage_object;
 

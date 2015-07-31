@@ -19,7 +19,7 @@ zend_object_value zookeeper_client_create_object(zend_class_entry *class_entry T
     zookeeper_client_storage_object *storage_object;
 
     storage_object = ecalloc(1, sizeof(*storage_object));
-    zend_object_std_init( &storage_object->zo, class_entry TSRMLS_CC );
+    zend_object_std_init( &storage_object->object, class_entry TSRMLS_CC );
     object_properties_init( (zend_object *) storage_object, class_entry);
 
     retval.handle = zend_objects_store_put(storage_object, (zend_objects_store_dtor_t)zend_objects_destroy_object, (zend_objects_free_object_storage_t)zookeeper_client_free_object, NULL TSRMLS_CC);
@@ -34,7 +34,7 @@ void zookeeper_client_free_object(zookeeper_client_storage_object *storage_objec
         zookeeper_close(storage_object->zk_handle);
     }
 
-    zend_object_std_dtor(&storage_object->zo TSRMLS_CC);
+    zend_object_std_dtor(&storage_object->object TSRMLS_CC);
     efree(storage_object);
 }
 
@@ -75,7 +75,7 @@ PHP_METHOD(ZookeeperClient, connect)
     }
 
     storage = zend_object_store_get_object(me TSRMLS_CC);
-    me->zk_handle = zk_handle;
+    storage->zk_handle = zk_handle;
 }
 
 PHP_METHOD(ZookeeperClient, get)
@@ -85,7 +85,7 @@ PHP_METHOD(ZookeeperClient, get)
     char *path = NULL;
     int path_len = 0;
     int response = ZOK;
-    struct Stat = stat;
+    struct Stat stat;
     char *retval = NULL;
     int retval_len = 0;
 
@@ -111,7 +111,7 @@ PHP_METHOD(ZookeeperClient, get)
         RETURN_NULL();
 
     retval = emalloc(stat.dataLength + 1);
-    response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, retval_len, &stat);
+    response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, &retval_len, &stat);
     if (response != ZOK) {
         efree(retval);
         php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_wget");
