@@ -48,7 +48,7 @@ PHP_METHOD(ZookeeperClient, connect)
     int hosts_len = 0;
     zhandle_t *zk_handle = NULL;
 
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|f!l", &hosts, &hosts_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &hosts, &hosts_len) == FAILURE) {
         return;
     }
 
@@ -63,7 +63,50 @@ PHP_METHOD(ZookeeperClient, connect)
 
 PHP_METHOD(ZookeeperClient, get)
 {
-    // TODO:
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    int response = ZOK;
+    struct Stat = stat;
+    char *retval = NULL;
+    int retval_len = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+        return;
+    }
+
+    storage = zend_object_store_get_object(me TSRMLS_CC);
+
+    if (!storage->zk_handle) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'get'");
+        return;
+    }
+
+    response = zoo_exists(storage->zk_handle, path, 1, &stat);
+    if (response != ZOK) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_exists");
+        return;
+    }
+
+    /* Found NULL in node */
+    if (stat.dataLength < 0)
+        RETURN_NULL();
+
+    retval = emalloc(stat.dataLength + 1);
+    response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, retval_len, &stat);
+    if (response != ZOK) {
+        efree(retval);
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_wget");
+        return;
+    }
+    if (retval_len <= 0) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "Impossible error was found");
+        return;
+    }
+
+    retval[retval_len] = 0;
+    RETURN_STRINGL(retval, retval_len, 0);
 }
 
 

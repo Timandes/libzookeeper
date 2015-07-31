@@ -9,10 +9,10 @@
 zend_class_entry *zookeeper_client_class_entry;
 
 ZEND_BEGIN_ARG_INFO_EX(connect_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, host)
+    ZEND_ARG_INFO(0, hosts)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(arginfo_get, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(get_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO()
 
