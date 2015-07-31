@@ -74,3 +74,4 @@ libzookeeper.loT
 ltmain.sh
 missing
 mkinstalldirs
+.libs/
