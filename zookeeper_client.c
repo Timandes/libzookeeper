@@ -20,7 +20,11 @@ zend_object_value zookeeper_client_create_object(zend_class_entry *class_entry T
 
     storage_object = ecalloc(1, sizeof(*storage_object));
     zend_object_std_init( &storage_object->object, class_entry TSRMLS_CC );
-    object_properties_init( (zend_object *) storage_object, class_entry);
+#if PHP_VERSION_ID < 50399
+	zend_hash_copy(storage_object->object.properties, &class_entry->default_properties, (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
+#else
+    object_properties_init( (zend_object *) storage_object->object, class_entry);
+#endif
 
     retval.handle = zend_objects_store_put(storage_object, (zend_objects_store_dtor_t)zend_objects_destroy_object, (zend_objects_free_object_storage_t)zookeeper_client_free_object, NULL TSRMLS_CC);
     retval.handlers = zend_get_std_object_handlers();
