@@ -8,24 +8,6 @@
 /* class ZookeeperClient { */
 zend_class_entry *zookeeper_client_class_entry;
 
-ZEND_BEGIN_ARG_INFO_EX(connect_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, hosts)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(get_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, path)
-ZEND_END_ARG_INFO()
-
-zend_function_entry zookeeper_client_method_entry[] = {
-    PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
-    PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
-
-    { NULL, NULL, NULL }
-};
-
-PHP_METHOD(ZookeeperClient, connect);
-PHP_METHOD(ZookeeperClient, get);
-
 /* } ZookeeperClient */
 
 /* Storage object of `ZookeeperClient` */
