@@ -30,3 +30,47 @@
 
 # Debug files
 *.dSYM/
+
+# Make files
+Makefile
+Makefile.fragments
+Makefile.global
+Makefile.objects
+
+# Autoconf files
+config.cache
+config.guess
+config.h
+config.h.in
+config.log
+config.nice
+config.status
+config.sub
+configure
+configure.in
+conftest
+conftest.c
+
+# Build
+build/
+
+# Test files
+tests/*.exp
+tests/*.diff
+tests/*.log
+tests/*.out
+tests/*.php
+tests/*.sh
+run-tests.php
+
+# Others
+.deps
+acinclude.m4
+aclocal.m4
+autom4te.cache/
+install-sh
+libtool
+libzookeeper.loT
+ltmain.sh
+missing
+mkinstalldirs
