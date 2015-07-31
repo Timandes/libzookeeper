@@ -3,7 +3,7 @@
 #ifndef ZOOKEEPER_CLIENT_H
 #define ZOOKEEPER_CLIENT_H
 
-#include <zookeeper.h>
+#include <zookeeper/zookeeper.h>
 
 /* class ZookeeperClient { */
 zend_class_entry *zookeeper_client_class_entry;

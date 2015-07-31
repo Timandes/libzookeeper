@@ -20,7 +20,7 @@ if test "$PHP_LIBZOOKEEPER" != "no"; then
 
   # --with-libzookeeper -> check with-path
   SEARCH_PATH="/usr/local /usr /usr/local/libzookeeper"     # you might want to change this
-  SEARCH_FOR="/include/zookeeper.h"  # you most likely want to change this
+  SEARCH_FOR="/include/zookeeper/zookeeper.h"  # you most likely want to change this
   if test -r $PHP_LIBZOOKEEPER/$SEARCH_FOR; then # path given as parameter
      LIBZOOKEEPER_DIR=$PHP_LIBZOOKEEPER
   else # search default path list
@@ -43,7 +43,7 @@ if test "$PHP_LIBZOOKEEPER" != "no"; then
 
   # --with-libzookeeper -> check for lib and symbol presence
   LIBNAME=zookeeper_mt # you may want to change this
-  LIBSYMBOL=zookeeper_mt # you most likely want to change this 
+  LIBSYMBOL=zookeeper_init # you most likely want to change this 
 
   PHP_CHECK_LIBRARY($LIBNAME,$LIBSYMBOL,
   [
