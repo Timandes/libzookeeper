@@ -9,6 +9,8 @@
 /* class ZookeeperClient { */
 zend_class_entry *zookeeper_client_class_entry;
 
+zend_function_entry zookeeper_client_method_entry[];
+
 PHP_METHOD(ZookeeperClient, connect);
 PHP_METHOD(ZookeeperClient, get);
 

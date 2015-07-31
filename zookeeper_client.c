@@ -8,7 +8,7 @@ void register_zookeeper_client_class(TSRMLS_D)
 {
     zend_class_entry class_entry;
 
-    INIT_CLASS_ENTRY(class_entry, "ZookeeperClient", NULL);
+    INIT_CLASS_ENTRY(class_entry, "ZookeeperClient", zookeeper_client_method_entry);
     zookeeper_client_class_entry = zend_register_internal_class_ex(&class_entry, NULL, NULL TSRMLS_CC);
     zookeeper_client_class_entry->create_object = zookeeper_client_create_object;
 }
