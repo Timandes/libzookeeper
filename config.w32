@@ -1,13 +1,13 @@
 // $Id$
 // vim:ft=javascript
 
-// If your extension references something external, use ARG_WITH
-// ARG_WITH("libzookeeper", "for libzookeeper support", "no");
+If your extension references something external, use ARG_WITH
+ARG_WITH("libzookeeper", "for libzookeeper support", "no");
 
 // Otherwise, use ARG_ENABLE
 // ARG_ENABLE("libzookeeper", "enable libzookeeper support", "no");
 
 if (PHP_LIBZOOKEEPER != "no") {
-	EXTENSION("libzookeeper", "libzookeeper.c");
+	EXTENSION("libzookeeper", "libzookeeper.c zookeeper_client.c");
 }
 
