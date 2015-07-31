@@ -121,9 +121,9 @@ PHP_METHOD(ZookeeperClient, get)
         php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_wget");
         return;
     }
+	/* Found NULL in node */
     if (retval_len <= 0) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "Impossible error was found");
-        return;
+		RETURN_NULL();
     }
 
     retval[retval_len] = 0;
