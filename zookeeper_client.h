@@ -13,6 +13,7 @@ zend_function_entry zookeeper_client_method_entry[];
 
 PHP_METHOD(ZookeeperClient, connect);
 PHP_METHOD(ZookeeperClient, get);
+PHP_METHOD(ZookeeperClient, getChildren);
 
 /* } ZookeeperClient */
 

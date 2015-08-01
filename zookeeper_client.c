@@ -52,9 +52,14 @@ ZEND_BEGIN_ARG_INFO_EX(get_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(getChildren_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, getChildren, getChildren_arg_info, ZEND_ACC_PUBLIC)
 
     { NULL, NULL, NULL }
 };
@@ -130,6 +135,37 @@ PHP_METHOD(ZookeeperClient, get)
     RETURN_STRINGL(retval, retval_len, 0);
 }
 
+PHP_METHOD(ZookeeperClient, getChildren)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    int response = ZOK;
+    struct String_vector children;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+        return;
+    }
+
+    storage = zend_object_store_get_object(me TSRMLS_CC);
+
+    if (!storage->zk_handle) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'get'");
+        return;
+    }
+
+    response = zoo_wget_children(storage->zk_handle, path, NULL, NULL, &children);
+    if (response != ZOK) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_wget_children");
+        return;
+    }
+
+    array_init(return_value);
+    for (i = 0; i < children.count; i++) {
+        add_next_index_string(return_value, children.data[i], 1);
+    }
+}
 
 /*
  * Local variables:
