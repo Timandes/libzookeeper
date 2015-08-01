@@ -143,6 +143,7 @@ PHP_METHOD(ZookeeperClient, getChildren)
     int path_len = 0;
     int response = ZOK;
     struct String_vector children;
+	int i;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
         return;
