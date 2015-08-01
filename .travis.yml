@@ -1,0 +1,21 @@
+language: php
+php:
+    - 5.4
+    - 5.3
+
+env:
+    - LIBZOOKEEPER_VERSION=3.5.0-alpha
+    - LIBZOOKEEPER_VERSION=3.4.6
+
+install:
+    - sudo apt-get install -y lcov
+    - gem install coveralls-lcov
+
+before_script:
+    - ./scripts/dev/install_libzookeeper.sh $LIBZOOKEEPER_VERSION
+
+script:
+    - ./scripts/dev/build_n_test.sh $LIBZOOKEEPER_VERSION
+
+after_success:
+    - coveralls-lcov coverage.info
