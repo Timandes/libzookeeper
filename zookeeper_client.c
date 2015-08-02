@@ -56,10 +56,21 @@ ZEND_BEGIN_ARG_INFO_EX(getChildren_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(create_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(delete_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, getChildren, getChildren_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, create, create_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, delete, delete_arg_info, ZEND_ACC_PUBLIC)
 
     { NULL, NULL, NULL }
 };
@@ -165,6 +176,80 @@ PHP_METHOD(ZookeeperClient, getChildren)
     for (i = 0; i < children.count; i++) {
         add_next_index_string(return_value, children.data[i], 1);
     }
+}
+
+PHP_METHOD(ZookeeperClient, create)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    char *value = NULL;
+    int value_len = 0;
+    int response = ZOK;
+    struct ACL_vector acl_vector = { 0, };
+    char *buffer = NULL;
+    int buffer_len = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s!", &path, &path_len, &value, &value_len) == FAILURE) {
+        return;
+    }
+
+    if (!value) {
+        value_len = -1;
+    }
+
+    storage = zend_object_store_get_object(me TSRMLS_CC);
+    if (!storage->zk_handle) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'create'");
+        return;
+    }
+
+    acl_vector->count = 1;
+    acl_vector->data = (struct ACL *)ecalloc(1, sizeof(struct ACL));
+    acl_vector->data[0].perms = ZOO_PERM_ALL;
+    acl_vector->data[0].id.id = 'anyone';
+    acl_vector->data[0].id.scheme = 'world';
+
+    buffer = emalloc(path_len + 1);
+
+    response = zoo_create(storage->zk_handle, path, value, value_len, &acl_vector, 0, buffer, buffer_len);
+    if (response != ZOK) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_create");
+        return;
+    }
+
+    buffer[buffer_len] = 0;
+    RETURN_STRINGL(buffer, buffer_len, 0);
+}
+
+PHP_METHOD(ZookeeperClient, delete)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    int response = ZOK;
+    int version = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+        return;
+    }
+
+    storage = zend_object_store_get_object(me TSRMLS_CC);
+
+    if (!storage->zk_handle) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'delete'");
+        return;
+    }
+
+    response = zoo_delete(storage->zk_handle, path, version);
+    if (response != ZOK) {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_delete");
+        return;
+    }
+
+    RETURN_TRUE;
 }
 
 /*
