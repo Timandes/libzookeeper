@@ -212,7 +212,8 @@ PHP_METHOD(ZookeeperClient, create)
     acl_vector.data[0].id.id = "anyone";
     acl_vector.data[0].id.scheme = "world";
 
-    buffer = emalloc(path_len + 1);
+    buffer_len = path_len + 1;
+    buffer = emalloc(buffer_len);
 
     response = zoo_create(storage->zk_handle, path, value, value_len, &acl_vector, 0, buffer, buffer_len);
     if (response != ZOK) {
