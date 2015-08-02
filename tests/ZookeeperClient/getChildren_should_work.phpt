@@ -9,4 +9,7 @@ $zc->connect('localhost:2181');
 var_dump($zc->getChildren('/zookeeper'));
 ?>
 --EXPECT--
-array('quota');
+array(1) {
+  [0]=>
+  string(5) "quota"
+}
