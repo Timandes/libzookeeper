@@ -206,11 +206,11 @@ PHP_METHOD(ZookeeperClient, create)
         return;
     }
 
-    acl_vector->count = 1;
-    acl_vector->data = (struct ACL *)ecalloc(1, sizeof(struct ACL));
-    acl_vector->data[0].perms = ZOO_PERM_ALL;
-    acl_vector->data[0].id.id = 'anyone';
-    acl_vector->data[0].id.scheme = 'world';
+    acl_vector.count = 1;
+    acl_vector.data = (struct ACL *)ecalloc(1, sizeof(struct ACL));
+    acl_vector.data[0].perms = ZOO_PERM_ALL;
+    acl_vector.data[0].id.id = "anyone";
+    acl_vector.data[0].id.scheme = "world";
 
     buffer = emalloc(path_len + 1);
 
