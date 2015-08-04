@@ -10,5 +10,5 @@ Contents:
     installing_n_configuring
     predefined_constants
     examples
-    zookeeper_client
+    ZookeeperClient/index
     zookeeper_client_exception
