@@ -8,7 +8,7 @@ Communicate with Zookeeper using PHP.
 Requirements
 ====
 
-* Zookeeper C Client
+* [Zookeeper C Client](https://zookeeper.apache.org/)
 
 Install
 ====
@@ -26,3 +26,8 @@ Examples
     $zc->connect('localhost:2181');
     var_dump($zc->get('/zookeeper'));
     ?>
+
+Reference
+====
+
+[View On RTFD](http://libzookeeper.readthedocs.org/en/latest/index.html)
