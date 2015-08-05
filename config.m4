@@ -57,5 +57,5 @@ if test "$PHP_LIBZOOKEEPER" != "no"; then
   
   PHP_SUBST(LIBZOOKEEPER_SHARED_LIBADD)
 
-  PHP_NEW_EXTENSION(libzookeeper, libzookeeper.c zookeeper_client.c, $ext_shared)
+  PHP_NEW_EXTENSION(libzookeeper, php_libzookeeper.c zookeeper_client.c, $ext_shared)
 fi

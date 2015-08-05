@@ -8,6 +8,6 @@ ARG_WITH("libzookeeper", "for libzookeeper support", "no");
 // ARG_ENABLE("libzookeeper", "enable libzookeeper support", "no");
 
 if (PHP_LIBZOOKEEPER != "no") {
-	EXTENSION("libzookeeper", "libzookeeper.c zookeeper_client.c");
+	EXTENSION("libzookeeper", "php_libzookeeper.c zookeeper_client.c");
 }
 
