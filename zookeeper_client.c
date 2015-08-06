@@ -93,7 +93,7 @@ PHP_METHOD(ZookeeperClient, connect)
 
     zk_handle = zookeeper_init(hosts, NULL, 10000, 0, NULL, 0);
     if (NULL == zk_handle) {
-        throw_zookeeper_client_exception("Fail to initialize zookeeper client", LIBZOOKEEPER_ERROR_INIT_FAILURE);
+        throw_zookeeper_client_exception("Fail to initialize zookeeper client", LIBZOOKEEPER_ERROR_INIT_FAILURE TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Fail to initialize zookeeper client");
         return;
     }
@@ -120,14 +120,14 @@ PHP_METHOD(ZookeeperClient, get)
     storage = zend_object_store_get_object(me TSRMLS_CC);
 
     if (!storage->zk_handle) {
-        throw_zookeeper_client_exception("Method 'connect' should be called before 'get'", LIBZOOKEEPER_ERROR_CONNECT_FIRST);
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'get'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Method 'connect' should be called before 'get'");
         return;
     }
 
     response = zoo_exists(storage->zk_handle, path, 1, &stat);
     if (response != ZOK) {
-        throw_zookeeper_client_core_exception(response);
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Found error when calling zoo_exists");
         return;
     }
@@ -140,7 +140,7 @@ PHP_METHOD(ZookeeperClient, get)
     response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, &retval_len, &stat);
     if (response != ZOK) {
         efree(retval);
-        throw_zookeeper_client_core_exception(response);
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Found error when calling zoo_wget");
         return;
     }
@@ -170,14 +170,14 @@ PHP_METHOD(ZookeeperClient, getChildren)
     storage = zend_object_store_get_object(me TSRMLS_CC);
 
     if (!storage->zk_handle) {
-        throw_zookeeper_client_exception("Method 'connect' should be called before 'getChildren'", LIBZOOKEEPER_ERROR_CONNECT_FIRST);
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'getChildren'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Method 'connect' should be called before 'getChildren'");
         return;
     }
 
     response = zoo_wget_children(storage->zk_handle, path, NULL, NULL, &children);
     if (response != ZOK) {
-        throw_zookeeper_client_core_exception(response);
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Found error when calling zoo_wget_children");
         return;
     }
@@ -211,7 +211,7 @@ PHP_METHOD(ZookeeperClient, create)
 
     storage = zend_object_store_get_object(me TSRMLS_CC);
     if (!storage->zk_handle) {
-        throw_zookeeper_client_exception("Method 'connect' should be called before 'create'", LIBZOOKEEPER_ERROR_CONNECT_FIRST);
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'create'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Method 'connect' should be called before 'create'");
         return;
     }
@@ -227,7 +227,7 @@ PHP_METHOD(ZookeeperClient, create)
 
     response = zoo_create(storage->zk_handle, path, value, value_len, &acl_vector, 0, buffer, buffer_len);
     if (response != ZOK) {
-        throw_zookeeper_client_core_exception(response);
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Found error when calling zoo_create");
         return;
     }
@@ -252,14 +252,14 @@ PHP_METHOD(ZookeeperClient, delete)
     storage = zend_object_store_get_object(me TSRMLS_CC);
 
     if (!storage->zk_handle) {
-        throw_zookeeper_client_exception("Method 'connect' should be called before 'delete'", LIBZOOKEEPER_ERROR_CONNECT_FIRST);
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'delete'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Method 'connect' should be called before 'delete'");
         return;
     }
 
     response = zoo_delete(storage->zk_handle, path, version);
     if (response != ZOK) {
-        throw_zookeeper_client_core_exception(response);
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_delete");
         return;
     }
