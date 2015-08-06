@@ -9,6 +9,7 @@
 #include "ext/standard/info.h"
 #include "php_libzookeeper.h"
 #include "zookeeper_client.h"
+#include "zookeeper_client_exceptions.h"
 #include "version.h"
 
 /* If you declare any globals in php_libzookeeper.h uncomment this:
@@ -84,8 +85,11 @@ PHP_MINIT_FUNCTION(libzookeeper)
     // zookeeper_client.h
     register_zookeeper_client_class(TSRMLS_C);
 
-	/* Debug Level */
-	zoo_set_debug_level(ZOO_LOG_LEVEL_WARN);
+    // zookeeper_client_exceptions.h
+    register_zookeeper_client_exception_classes(TSRMLS_C);
+
+    /* Debug Level */
+    zoo_set_debug_level(ZOO_LOG_LEVEL_WARN);
 
     return SUCCESS;
 }

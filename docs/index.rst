@@ -11,4 +11,4 @@ Contents:
     predefined_constants
     examples
     ZookeeperClient/index
-    zookeeper_client_exception
+    exceptions/index
