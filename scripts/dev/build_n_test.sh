@@ -19,5 +19,5 @@ make || exit 1
 
 lcov --directory . --zerocounters &&
     lcov --directory . --capture --initial --output-file coverage.info
-export NO_INTERACTION=1 && make test
+export NO_INTERACTION=1 && make test || exit 1
 lcov --no-checksum --directory . --capture --output-file coverage.info
