@@ -20,4 +20,9 @@ make || exit 1
 lcov --directory . --zerocounters &&
     lcov --directory . --capture --initial --output-file coverage.info
 export NO_INTERACTION=1 && make test
-lcov --no-checksum --directory . --capture --output-file coverage.info
+if [ $? -eq 0 ]; then
+    lcov --no-checksum --directory . --capture --output-file coverage.info
+else
+    for f in `find tests/ |grep "out$"`; do cmd="cat $f" && echo $cmd: && $cmd; done
+    exit 1
+fi
