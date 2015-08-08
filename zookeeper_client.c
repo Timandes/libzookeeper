@@ -142,7 +142,6 @@ PHP_METHOD(ZookeeperClient, get)
     response = zoo_exists(storage->zk_handle, path, 1, &stat);
     if (response != ZOK) {
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
-        php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Found error when calling zoo_exists");
         return;
     }
 
@@ -155,7 +154,6 @@ PHP_METHOD(ZookeeperClient, get)
     if (response != ZOK) {
         efree(retval);
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
-        php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Found error when calling zoo_wget");
         return;
     }
 	/* Found NULL in node */
@@ -192,7 +190,6 @@ PHP_METHOD(ZookeeperClient, getChildren)
     response = zoo_wget_children(storage->zk_handle, path, NULL, NULL, &children);
     if (response != ZOK) {
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
-        php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Found error when calling zoo_wget_children");
         return;
     }
 
