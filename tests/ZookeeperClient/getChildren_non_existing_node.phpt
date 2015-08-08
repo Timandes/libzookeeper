@@ -8,8 +8,8 @@ $zc = new ZookeeperClient();
 $zc->connect('localhost:2181');
 try {
     $zc->getChildren('/non-existing');
-} catch (ZookeeperClientException $zce) {
-    fprintf(STDOUT, "[#%d] %s\n", $zce->getCode(), $zce->getMessage());
+} catch (ZookeeperClientCoreException $zcce) {
+    fprintf(STDOUT, "[#%d] %s\n", $zcce->getCode(), $zcce->getMessage());
 }
 ?>
 --EXPECT--
