@@ -33,7 +33,7 @@ void throw_zookeeper_client_core_exception(int code TSRMLS_DC)
         return;
 
     message = (char *)zerror(code);
-    zend_throw_exception(zookeeper_client_core_exception_class_entry, message, code TSRMLS_CC);
+    zend_throw_exception(zookeeper_client_core_exception_class_entry, message, (long)code TSRMLS_CC);
 }
 
 /*
