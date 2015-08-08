@@ -120,7 +120,6 @@ PHP_METHOD(ZookeeperClient, get)
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'get'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
-        php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Method 'connect' should be called before 'get'");
         return;
     }
 
