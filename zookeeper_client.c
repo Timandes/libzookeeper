@@ -94,7 +94,6 @@ PHP_METHOD(ZookeeperClient, connect)
     zk_handle = zookeeper_init(hosts, NULL, 10000, 0, NULL, 0);
     if (NULL == zk_handle) {
         throw_zookeeper_client_exception("Fail to initialize zookeeper client", LIBZOOKEEPER_ERROR_INIT_FAILURE TSRMLS_CC);
-        php_error_docref(NULL TSRMLS_CC, E_NOTICE, "Fail to initialize zookeeper client");
         return;
     }
 

@@ -11,5 +11,6 @@ try {
     fprintf(STDOUT, "[#%d] %s\n", $zce->getCode(), $zce->getMessage());
 }
 ?>
---EXPECT--
+--EXPECTF--
+%d-%d-%d %d:%d:%d,%d:%d(0x%x):ZOO_ERROR@resolve_hosts@571: invalid port in localhost
 [#1] Fail to initialize zookeeper client
