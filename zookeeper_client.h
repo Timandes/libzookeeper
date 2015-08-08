@@ -28,6 +28,9 @@ typedef struct _zookeeper_client_storage_object {
 /* Register `ZookeeperClient` */
 void register_zookeeper_client_class(TSRMLS_D);
 
+/* Register Constants of `ZookeeperClient` */
+void register_zookeeper_client_class_constants(INIT_FUNC_ARGS);
+
 /* Create `ZookeeperClient` object */
 zend_object_value zookeeper_client_create_object(zend_class_entry *class_entry TSRMLS_DC);
 

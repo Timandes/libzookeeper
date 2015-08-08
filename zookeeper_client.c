@@ -13,7 +13,10 @@ void register_zookeeper_client_class(TSRMLS_D)
     INIT_CLASS_ENTRY(class_entry, "ZookeeperClient", zookeeper_client_method_entry);
     zookeeper_client_class_entry = zend_register_internal_class_ex(&class_entry, NULL, NULL TSRMLS_CC);
     zookeeper_client_class_entry->create_object = zookeeper_client_create_object;
+}
 
+void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
+{
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS(ERR_OK) - 1, ZOK TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS(ERR_APIERROR) - 1, ZAPIERROR TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS(ERR_NONODE) - 1, ZNONODE TSRMLS_CC);

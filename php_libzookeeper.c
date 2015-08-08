@@ -84,6 +84,7 @@ PHP_MINIT_FUNCTION(libzookeeper)
 
     // zookeeper_client.h
     register_zookeeper_client_class(TSRMLS_C);
+    register_zookeeper_client_class_constants(INIT_FUNC_ARGS_PASSTHRU);
 
     // zookeeper_client_exceptions.h
     register_zookeeper_client_exception_classes(TSRMLS_C);
