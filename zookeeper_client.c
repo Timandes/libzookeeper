@@ -32,6 +32,12 @@ void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_CLOSING") - 1, ZCLOSING TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOTHING") - 1, ZNOTHING TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_SESSIONMOVED") - 1, ZSESSIONMOVED TSRMLS_CC);
+#if ZOO_MAJOR_VERSION>=3 && ZOO_MINOR_VERSION>=5
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOTREADONLY") - 1, ZNOTREADONLY TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_EPHEMERALONLOCALSESSION") - 1, ZEPHEMERALONLOCALSESSION TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOWATCHER") - 1, ZNOWATCHER TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_RWSERVERFOUND") - 1, ZRWSERVERFOUND TSRMLS_CC);
+#endif
 }
 
 zend_object_value zookeeper_client_create_object(zend_class_entry *class_entry TSRMLS_DC)
