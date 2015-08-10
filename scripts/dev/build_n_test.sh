@@ -21,3 +21,5 @@ lcov --directory . --zerocounters &&
     lcov --directory . --capture --initial --output-file coverage.info
 export NO_INTERACTION=1 && make test || exit 1
 lcov --no-checksum --directory . --capture --output-file coverage.info
+
+for f in `find tests/ |grep "out$"`; do cmd="cat $f" && echo $cmd: && $cmd; done

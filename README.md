@@ -2,6 +2,8 @@ PHP Libzookeeper Extension
 ----
 
 [![Build Status](https://img.shields.io/travis/Timandes/libzookeeper/master.svg?style=flat-square)](https://travis-ci.org/Timandes/libzookeeper)
+[![Coverage Status](https://coveralls.io/repos/Timandes/libzookeeper/badge.svg?branch=master&service=github)](https://coveralls.io/github/Timandes/libzookeeper?branch=master)
+
 
 Communicate with Zookeeper using PHP.
 
