@@ -158,7 +158,8 @@ PHP_METHOD(ZookeeperClient, get)
     if (stat.dataLength < 0)
         RETURN_NULL();
 
-    retval = emalloc(stat.dataLength + 1);
+	retval_len = stat.dataLength + 1;
+    retval = emalloc(retval_len);
     response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, &retval_len, &stat);
     if (response != ZOK) {
         efree(retval);
