@@ -1,6 +1,8 @@
 /* $Id$ */
 
 #include "zookeeper_client.h"
+#include "zookeeper_client_exceptions.h"
+#include "error_codes.h"
 
 // ---- Core functions ----
 
@@ -11,6 +13,31 @@ void register_zookeeper_client_class(TSRMLS_D)
     INIT_CLASS_ENTRY(class_entry, "ZookeeperClient", zookeeper_client_method_entry);
     zookeeper_client_class_entry = zend_register_internal_class_ex(&class_entry, NULL, NULL TSRMLS_CC);
     zookeeper_client_class_entry->create_object = zookeeper_client_create_object;
+}
+
+void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
+{
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_OK") - 1, ZOK TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_APIERROR") - 1, ZAPIERROR TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NONODE") - 1, ZNONODE TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOAUTH") - 1, ZNOAUTH TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_BADVERSION") - 1, ZBADVERSION TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOCHILDRENFOREPHEMERALS") - 1, ZNOCHILDRENFOREPHEMERALS TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NODEEXISTS") - 1, ZNODEEXISTS TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOTEMPTY") - 1, ZNOTEMPTY TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_SESSIONEXPIRED") - 1, ZSESSIONEXPIRED TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_INVALIDCALLBACK") - 1, ZINVALIDCALLBACK TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_INVALIDACL") - 1, ZINVALIDACL TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_AUTHFAILED") - 1, ZAUTHFAILED TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_CLOSING") - 1, ZCLOSING TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOTHING") - 1, ZNOTHING TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_SESSIONMOVED") - 1, ZSESSIONMOVED TSRMLS_CC);
+#if ZOO_MAJOR_VERSION>=3 && ZOO_MINOR_VERSION>=5
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOTREADONLY") - 1, ZNOTREADONLY TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_EPHEMERALONLOCALSESSION") - 1, ZEPHEMERALONLOCALSESSION TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOWATCHER") - 1, ZNOWATCHER TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_RWSERVERFOUND") - 1, ZRWSERVERFOUND TSRMLS_CC);
+#endif
 }
 
 zend_object_value zookeeper_client_create_object(zend_class_entry *class_entry TSRMLS_DC)
@@ -91,7 +118,8 @@ PHP_METHOD(ZookeeperClient, connect)
 
     zk_handle = zookeeper_init(hosts, NULL, 10000, 0, NULL, 0);
     if (NULL == zk_handle) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "Fail to initialize zookeeper client");
+        throw_zookeeper_client_exception("Fail to initialize zookeeper client", LIBZOOKEEPER_ERROR_INIT_FAILURE TSRMLS_CC);
+        return;
     }
 
     storage = zend_object_store_get_object(me TSRMLS_CC);
@@ -116,13 +144,13 @@ PHP_METHOD(ZookeeperClient, get)
     storage = zend_object_store_get_object(me TSRMLS_CC);
 
     if (!storage->zk_handle) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'get'");
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'get'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         return;
     }
 
     response = zoo_exists(storage->zk_handle, path, 1, &stat);
     if (response != ZOK) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_exists");
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
 
@@ -134,7 +162,7 @@ PHP_METHOD(ZookeeperClient, get)
     response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, &retval_len, &stat);
     if (response != ZOK) {
         efree(retval);
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_wget");
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
 	/* Found NULL in node */
@@ -163,13 +191,13 @@ PHP_METHOD(ZookeeperClient, getChildren)
     storage = zend_object_store_get_object(me TSRMLS_CC);
 
     if (!storage->zk_handle) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'get'");
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'getChildren'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         return;
     }
 
     response = zoo_wget_children(storage->zk_handle, path, NULL, NULL, &children);
     if (response != ZOK) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_wget_children");
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
 
@@ -202,7 +230,7 @@ PHP_METHOD(ZookeeperClient, create)
 
     storage = zend_object_store_get_object(me TSRMLS_CC);
     if (!storage->zk_handle) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'create'");
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'create'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         return;
     }
 
@@ -217,7 +245,7 @@ PHP_METHOD(ZookeeperClient, create)
 
     response = zoo_create(storage->zk_handle, path, value, value_len, &acl_vector, 0, buffer, buffer_len);
     if (response != ZOK) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_create");
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
 
@@ -241,13 +269,13 @@ PHP_METHOD(ZookeeperClient, delete)
     storage = zend_object_store_get_object(me TSRMLS_CC);
 
     if (!storage->zk_handle) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "method 'connect' should be called before 'delete'");
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'delete'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         return;
     }
 
     response = zoo_delete(storage->zk_handle, path, version);
     if (response != ZOK) {
-        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Found error when calling zoo_delete");
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
 
