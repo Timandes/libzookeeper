@@ -24,7 +24,6 @@ static int le_libzookeeper;
  * Every user visible function must have an entry in libzookeeper_functions[].
  */
 const zend_function_entry libzookeeper_functions[] = {
-    PHP_FE(confirm_libzookeeper_compiled,   NULL)       /* For testing, remove later. */
     PHP_FE_END  /* Must be the last line in libzookeeper_functions[] */
 };
 /* }}} */
@@ -146,34 +145,6 @@ PHP_MINFO_FUNCTION(libzookeeper)
     */
 }
 /* }}} */
-
-
-/* Remove the following function when you have succesfully modified config.m4
-   so that your module can be compiled into PHP, it exists only for testing
-   purposes. */
-
-/* Every user-visible function in PHP should document itself in the source */
-/* {{{ proto string confirm_libzookeeper_compiled(string arg)
-   Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(confirm_libzookeeper_compiled)
-{
-    char *arg = NULL;
-    int arg_len, len;
-    char *strg;
-
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
-        return;
-    }
-
-    len = spprintf(&strg, 0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "libzookeeper", arg);
-    RETURN_STRINGL(strg, len, 0);
-}
-/* }}} */
-/* The previous line is meant for vim and emacs, so it can correctly fold and
-   unfold functions in source code. See the corresponding marks just before
-   function definition, where the functions purpose is also documented. Please
-   follow this convention for the convenience of others editing your code.
-*/
 
 
 /*
