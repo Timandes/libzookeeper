@@ -6,10 +6,15 @@ GetChildren should work
 <?php
 $zc = new ZookeeperClient();
 $zc->connect('localhost:2181');
-var_dump($zc->getChildren('/zookeeper'));
+$path = '/parent_test_node';
+$zc->create($path);
+$zc->create($path . '/child');
+var_dump($zc->getChildren($path));
+$zc->delete($path . '/child');
+$zc->delete($path);
 ?>
 --EXPECT--
 array(1) {
   [0]=>
-  string(5) "quota"
+  string(5) "child"
 }
