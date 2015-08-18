@@ -308,7 +308,7 @@ PHP_METHOD(ZookeeperClient, exists)
         return;
     }
 
-    response = zoo_exists($storage->zk_handle, path, 0, &stat);
+    response = zoo_exists(storage->zk_handle, path, 0, &stat);
     if (response == ZOK)
         RETURN_TRUE;
 
