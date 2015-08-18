@@ -13,3 +13,4 @@ Contents:
     getChildren
     create
     delete
+    exists
