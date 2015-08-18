@@ -92,12 +92,17 @@ ZEND_BEGIN_ARG_INFO_EX(delete_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(exists_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, getChildren, getChildren_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, create, create_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, delete, delete_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, exists, exists_arg_info, ZEND_ACC_PUBLIC)
 
     { NULL, NULL, NULL }
 };
@@ -281,6 +286,38 @@ PHP_METHOD(ZookeeperClient, delete)
     }
 
     RETURN_TRUE;
+}
+
+PHP_METHOD(ZookeeperClient, exists)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    struct Stat stat;
+    int response = ZOK;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+        return;
+    }
+
+    storage = zend_object_store_get_object(me TSRMLS_CC);
+
+    if (!storage->zk_handle) {
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'exists'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
+        return;
+    }
+
+    response = zoo_exists($storage->zk_handle, path, 0, &stat);
+    if (response == ZOK)
+        RETURN_TRUE;
+
+    if (response != ZNONODE) {
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
+        return;
+    }
+
+    RETURN_FALSE;
 }
 
 /*
