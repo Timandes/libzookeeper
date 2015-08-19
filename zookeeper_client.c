@@ -255,8 +255,8 @@ PHP_METHOD(ZookeeperClient, create)
         return;
     }
 
-    buffer[buffer_len] = 0;
-    RETURN_STRINGL(buffer, buffer_len, 0);
+    buffer[buffer_len - 1] = 0;
+    RETURN_STRINGL(buffer, buffer_len - 1, 0);
 }
 
 PHP_METHOD(ZookeeperClient, delete)
