@@ -11,8 +11,16 @@ void register_zookeeper_client_class(TSRMLS_D)
     zend_class_entry class_entry;
 
     INIT_CLASS_ENTRY(class_entry, "ZookeeperClient", zookeeper_client_method_entry);
-    zookeeper_client_class_entry = zend_register_internal_class_ex(&class_entry, NULL, NULL TSRMLS_CC);
+    zookeeper_client_class_entry = zend_register_internal_class_ex(&class_entry, NULL
+#if PHP_VERSION_ID < 70000
+			, NULL 
+#endif
+			TSRMLS_CC);
     zookeeper_client_class_entry->create_object = zookeeper_client_create_object;
+	memcpy(&zookeeper_client_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+#if PHP_VERSION_ID >= 70000
+	zookeeper_client_object_handlers.free_obj = (zend_object_free_obj_t)zookeeper_client_free_object;
+#endif
 }
 
 void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
@@ -40,23 +48,47 @@ void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
 #endif
 }
 
-zend_object_value zookeeper_client_create_object(zend_class_entry *class_entry TSRMLS_DC)
+#if PHP_VERSION_ID >= 70000
+zend_object *
+#else
+zend_object_value
+#endif
+		zookeeper_client_create_object(zend_class_entry *class_entry TSRMLS_DC)
 {
+#if PHP_VERSION_ID < 70000
     zend_object_value retval;
+#endif
     zookeeper_client_storage_object *storage_object;
 
-    storage_object = ecalloc(1, sizeof(*storage_object));
+    storage_object = ecalloc(1, sizeof(*storage_object)
+#if PHP_VERSION_ID >= 70000
+				+ zend_object_properties_size(class_entry)
+#endif
+			);
     zend_object_std_init( &storage_object->object, class_entry TSRMLS_CC );
 #if PHP_VERSION_ID < 50399
 	zend_hash_copy(storage_object->object.properties, &class_entry->default_properties, (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
 #else
-    object_properties_init( (zend_object *) storage_object, class_entry);
+    object_properties_init( &storage_object->object, class_entry);
 #endif
 
+#if PHP_VERSION_ID < 70000
     retval.handle = zend_objects_store_put(storage_object, (zend_objects_store_dtor_t)zend_objects_destroy_object, (zend_objects_free_object_storage_t)zookeeper_client_free_object, NULL TSRMLS_CC);
-    retval.handlers = zend_get_std_object_handlers();
+    retval.handlers = &zookeeper_client_object_handlers;
+#else
+	storage_object->object.handlers = &zookeeper_client_object_handlers;
+#endif
 
+
+#if PHP_VERSION_ID >= 70000
+	zookeeper_client_object_handlers.offset = XtOffsetOf(zookeeper_client_storage_object, object);
+#endif
+
+#if PHP_VERSION_ID >= 70000
+	return &storage_object->object;
+#else
     return retval;
+#endif
 }
 
 void zookeeper_client_free_object(zookeeper_client_storage_object *storage_object TSRMLS_DC)
@@ -127,7 +159,7 @@ PHP_METHOD(ZookeeperClient, connect)
         return;
     }
 
-    storage = zend_object_store_get_object(me TSRMLS_CC);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
     storage->zk_handle = zk_handle;
 }
 
@@ -141,12 +173,15 @@ PHP_METHOD(ZookeeperClient, get)
     struct Stat stat;
     char *retval = NULL;
     int retval_len = 0;
+#if PHP_VERSION_ID >= 70000
+	zend_string *retval_string;
+#endif
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
         return;
     }
 
-    storage = zend_object_store_get_object(me TSRMLS_CC);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'get'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
@@ -177,7 +212,12 @@ PHP_METHOD(ZookeeperClient, get)
     }
 
     retval[retval_len] = 0;
+#if PHP_VERSION_ID >= 70000
+	retval_string = zend_string_init(retval, retval_len, 0);
+	RETURN_STR(retval_string);
+#else
     RETURN_STRINGL(retval, retval_len, 0);
+#endif
 }
 
 PHP_METHOD(ZookeeperClient, getChildren)
@@ -194,7 +234,7 @@ PHP_METHOD(ZookeeperClient, getChildren)
         return;
     }
 
-    storage = zend_object_store_get_object(me TSRMLS_CC);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'getChildren'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
@@ -209,7 +249,11 @@ PHP_METHOD(ZookeeperClient, getChildren)
 
     array_init(return_value);
     for (i = 0; i < children.count; i++) {
-        add_next_index_string(return_value, children.data[i], 1);
+        add_next_index_string(return_value, children.data[i]
+#if PHP_VERSION_ID < 70000
+				, 1
+#endif
+				);
     }
 }
 
@@ -225,6 +269,9 @@ PHP_METHOD(ZookeeperClient, create)
     struct ACL_vector acl_vector = { 0, };
     char *buffer = NULL;
     int buffer_len = 0;
+#if PHP_VERSION_ID >= 70000
+	zend_string *retval;
+#endif
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s!", &path, &path_len, &value, &value_len) == FAILURE) {
         return;
@@ -234,7 +281,7 @@ PHP_METHOD(ZookeeperClient, create)
         value_len = -1;
     }
 
-    storage = zend_object_store_get_object(me TSRMLS_CC);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'create'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         return;
@@ -256,7 +303,12 @@ PHP_METHOD(ZookeeperClient, create)
     }
 
     buffer[buffer_len - 1] = 0;
+#if PHP_VERSION_ID >= 70000
+	retval = zend_string_init(buffer, buffer_len - 1, 0);
+	RETURN_STR(retval);
+#else
     RETURN_STRINGL(buffer, buffer_len - 1, 0);
+#endif
 }
 
 PHP_METHOD(ZookeeperClient, delete)
@@ -272,7 +324,7 @@ PHP_METHOD(ZookeeperClient, delete)
         return;
     }
 
-    storage = zend_object_store_get_object(me TSRMLS_CC);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'delete'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
@@ -301,7 +353,7 @@ PHP_METHOD(ZookeeperClient, exists)
         return;
     }
 
-    storage = zend_object_store_get_object(me TSRMLS_CC);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'exists'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
@@ -325,6 +377,6 @@ PHP_METHOD(ZookeeperClient, exists)
  * tab-width: 4
  * c-basic-offset: 4
  * End:
- * vim600: noet sw=4 ts=4 fdm=marker
- * vim<600: noet sw=4 ts=4
+ * vim600: noet sw=4 ts=4 expandtab fdm=marker
+ * vim<600: noet sw=4 ts=4 expandtab
  */
