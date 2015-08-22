@@ -47,7 +47,13 @@ zend_object_value
 		zookeeper_client_create_object(zend_class_entry *class_entry TSRMLS_DC);
 
 /* Free `ZookeeperClient` object */
-void zookeeper_client_free_object(zookeeper_client_storage_object *storage_object TSRMLS_DC);
+void zookeeper_client_free_object(
+#if PHP_VERSION_ID >= 70000
+		zend_object *object
+#else
+		zookeeper_client_storage_object *storage_object TSRMLS_DC
+#endif
+		);
 
 /* Fetch `ZookeeperClient` object */
 #if PHP_VERSION_ID >= 70000

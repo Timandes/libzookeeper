@@ -91,11 +91,26 @@ zend_object_value
 #endif
 }
 
-void zookeeper_client_free_object(zookeeper_client_storage_object *storage_object TSRMLS_DC)
+
+
+void zookeeper_client_free_object(
+#if PHP_VERSION_ID >= 70000
+        zend_object *object
+#else
+        zookeeper_client_storage_object *storage_object TSRMLS_DC
+#endif
+        )
 {
+#if PHP_VERSION_ID >= 70000
+    zookeeper_client_storage_object *storage_object;
+
+    storage_object = FETCH_ZOOKEEPER_CLIENT_OBJECT(object);
+#endif
+
     if (storage_object->zk_handle) {
         zookeeper_close(storage_object->zk_handle);
     }
+    storage_object->zk_handle = NULL;
 
     zend_object_std_dtor(&storage_object->object TSRMLS_CC);
     efree(storage_object);
@@ -148,11 +163,21 @@ PHP_METHOD(ZookeeperClient, connect)
     char *hosts = NULL;
     int hosts_len = 0;
     zhandle_t *zk_handle = NULL;
+#if PHP_VERSION_ID >= 70000
+    zend_string *hosts_string = NULL;
+#endif
 
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &hosts_string) == FAILURE) {
+#else
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &hosts, &hosts_len) == FAILURE) {
+#endif
         return;
     }
-
+#if PHP_VERSION_ID >= 70000
+    hosts = hosts_string->val;
+    hosts_len = hosts_string->len;
+#endif
     zk_handle = zookeeper_init(hosts, NULL, 10000, 0, NULL, 0);
     if (NULL == zk_handle) {
         throw_zookeeper_client_exception("Fail to initialize zookeeper client", LIBZOOKEEPER_ERROR_INIT_FAILURE TSRMLS_CC);
@@ -174,12 +199,21 @@ PHP_METHOD(ZookeeperClient, get)
     char *retval = NULL;
     int retval_len = 0;
 #if PHP_VERSION_ID >= 70000
+    zend_string *path_string;
 	zend_string *retval_string;
 #endif
 
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &path_string) == FAILURE) {
+#else
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+#endif
         return;
     }
+#if PHP_VERSION_ID >= 70000
+    path = path_string->val;
+    path_len = path_string->len;
+#endif
 
 	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
@@ -229,11 +263,21 @@ PHP_METHOD(ZookeeperClient, getChildren)
     int response = ZOK;
     struct String_vector children;
 	int i;
+#if PHP_VERSION_ID >= 70000
+    zend_string *path_string;
+#endif
 
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &path_string) == FAILURE) {
+#else
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+#endif
         return;
     }
-
+#if PHP_VERSION_ID >= 70000
+    path = path_string->val;
+    path_len = path_string->len;
+#endif
 	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
     if (!storage->zk_handle) {
@@ -270,13 +314,24 @@ PHP_METHOD(ZookeeperClient, create)
     char *buffer = NULL;
     int buffer_len = 0;
 #if PHP_VERSION_ID >= 70000
+    zend_string *path_string;
+    zend_string *value_string;
 	zend_string *retval;
 #endif
 
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|S!", &path_string, &value_string) == FAILURE) {
+#else
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s!", &path, &path_len, &value, &value_len) == FAILURE) {
+#endif
         return;
     }
-
+#if PHP_VERSION_ID >= 70000
+    path = path_string->val;
+    path_len = path_string->len;
+    value = value_string->val;
+    value_len = value_string->len;
+#endif
     if (!value) {
         value_len = -1;
     }
@@ -319,11 +374,21 @@ PHP_METHOD(ZookeeperClient, delete)
     int path_len = 0;
     int response = ZOK;
     int version = 0;
+#if PHP_VERSION_ID >= 70000
+    zend_string *path_string;
+#endif
 
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &path_string) == FAILURE) {
+#else
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+#endif
         return;
     }
-
+#if PHP_VERSION_ID >= 70000
+    path = path_string->val;
+    path_len = path_string->len;
+#endif
 	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
     if (!storage->zk_handle) {
@@ -348,11 +413,21 @@ PHP_METHOD(ZookeeperClient, exists)
     int path_len = 0;
     struct Stat stat;
     int response = ZOK;
+#if PHP_VERSION_ID >= 70000
+    zend_string *path_string;
+#endif
 
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S", &path_string) == FAILURE) {
+#else
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+#endif
         return;
     }
-
+#if PHP_VERSION_ID >= 70000
+    path = path_string->val;
+    path_len = path_string->len;
+#endif
 	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
 
     if (!storage->zk_handle) {

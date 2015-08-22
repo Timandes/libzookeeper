@@ -10,21 +10,21 @@
 void register_zookeeper_client_exception_classes(TSRMLS_D)
 {
     zend_class_entry class_entry;
+    zend_class_entry **runtime_exception_class_entry = NULL;
 #if PHP_VERSION_ID >= 70000
     zend_string *runtime_exception_class_name;
-    zend_class_entry *runtime_exception_class_entry;
 #else
-    zend_class_entry **runtime_exception_class_entry_ptr = NULL;
+
 #endif
 
     INIT_CLASS_ENTRY(class_entry, "ZookeeperClientException", NULL);
 #if PHP_VERSION_ID >= 70000
     runtime_exception_class_name = zend_string_init("runtimeexception", strlen("runtimeexception"), 0);
-    if ((runtime_exception_class_entry = (zend_class_entry *)zend_hash_find(CG(class_table), runtime_exception_class_name)) != NULL) {
+    if ((runtime_exception_class_entry = zend_hash_find_ptr(CG(class_table), runtime_exception_class_name)) != NULL) {
         zookeeper_client_exception_class_entry = zend_register_internal_class_ex(&class_entry, runtime_exception_class_entry);
 #else
-    if (zend_hash_find(CG(class_table), "runtimeexception", sizeof("RuntimeException"), (void **) &runtime_exception_class_entry_ptr) == SUCCESS) {
-        zookeeper_client_exception_class_entry = zend_register_internal_class_ex(&class_entry, *runtime_exception_class_entry_ptr, NULL TSRMLS_CC);
+    if (zend_hash_find(CG(class_table), "runtimeexception", sizeof("RuntimeException"), (void **) &runtime_exception_class_entry) == SUCCESS) {
+        zookeeper_client_exception_class_entry = zend_register_internal_class_ex(&class_entry, *runtime_exception_class_entry, NULL TSRMLS_CC);
 #endif
     } else {
         zookeeper_client_exception_class_entry = zend_register_internal_class_ex(&class_entry
