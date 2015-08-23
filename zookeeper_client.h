@@ -55,11 +55,27 @@ void zookeeper_client_free_object(
 #endif
 		);
 
+/* PHP 7 only {{{ */
+//#if PHP_VERSION_ID >= 70000
+
+/* Fetching the custom object */
+/*
+static inline zookeeper_client_storage_object* zookeeper_client_storage_object_fetch_object(zend_object *obj)
+{
+    return (zookeeper_client_storage_object *)((char *)obj - XtOffsetOf(zookeeper_client_storage_object, object));
+}
+
+#define Z_LIBZOOKEEPER_OBJ_P(zv) zookeeper_client_storage_object_fetch_object(Z_OBJ_P(zv));
+
+#endif*/
+/* }}} */
+
 /* Fetch `ZookeeperClient` object */
 #if PHP_VERSION_ID >= 70000
 #define FETCH_ZOOKEEPER_CLIENT_OBJECT(me) (zookeeper_client_storage_object *)((char *)me - XtOffsetOf(zookeeper_client_storage_object, object));
+#define FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me) FETCH_ZOOKEEPER_CLIENT_OBJECT(Z_OBJ_P(me))
 #else
-#define FETCH_ZOOKEEPER_CLIENT_OBJECT(me) zend_object_store_get_object(me TSRMLS_CC);
+#define FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me) zend_object_store_get_object(me TSRMLS_CC);
 #endif
 
 #endif  /* ZOOKEEPER_CLIENT_H */

@@ -60,7 +60,7 @@ zend_object_value
 #endif
     zookeeper_client_storage_object *storage_object;
 
-    storage_object = ecalloc(1, sizeof(*storage_object)
+    storage_object = ecalloc(1, sizeof(zookeeper_client_storage_object)
 #if PHP_VERSION_ID >= 70000
 				+ zend_object_properties_size(class_entry)
 #endif
@@ -184,7 +184,7 @@ PHP_METHOD(ZookeeperClient, connect)
         return;
     }
 
-	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
     storage->zk_handle = zk_handle;
 }
 
@@ -215,7 +215,7 @@ PHP_METHOD(ZookeeperClient, get)
     path_len = path_string->len;
 #endif
 
-	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'get'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
@@ -278,7 +278,7 @@ PHP_METHOD(ZookeeperClient, getChildren)
     path = path_string->val;
     path_len = path_string->len;
 #endif
-	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'getChildren'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
@@ -332,11 +332,12 @@ PHP_METHOD(ZookeeperClient, create)
     value = value_string->val;
     value_len = value_string->len;
 #endif
-    if (!value) {
+    if (!value
+            || strlen(value) <= 0) {
         value_len = -1;
     }
 
-	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'create'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
         return;
@@ -389,7 +390,7 @@ PHP_METHOD(ZookeeperClient, delete)
     path = path_string->val;
     path_len = path_string->len;
 #endif
-	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'delete'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
@@ -428,7 +429,7 @@ PHP_METHOD(ZookeeperClient, exists)
     path = path_string->val;
     path_len = path_string->len;
 #endif
-	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT(me);
+	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
 
     if (!storage->zk_handle) {
         throw_zookeeper_client_exception("Method 'connect' should be called before 'exists'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
