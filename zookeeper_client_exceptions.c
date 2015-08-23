@@ -39,9 +39,9 @@ void register_zookeeper_client_exception_classes(TSRMLS_D)
     INIT_CLASS_ENTRY(class_entry, "ZookeeperClientCoreException", NULL);
     zookeeper_client_core_exception_class_entry = zend_register_internal_class_ex(&class_entry, zookeeper_client_exception_class_entry
 #if PHP_VERSION_ID < 70000
-            , "ZookeeperClientException" 
+            , "ZookeeperClientException" TSRMLS_CC
 #endif
-            TSRMLS_CC);
+            );
 }
 
 void throw_zookeeper_client_exception(char *message, int code TSRMLS_DC)
