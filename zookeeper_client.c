@@ -199,8 +199,8 @@ PHP_METHOD(ZookeeperClient, get)
     char *retval = NULL;
     int retval_len = 0;
 #if PHP_VERSION_ID >= 70000
-    zend_string *path_string;
-	zend_string *retval_string;
+    zend_string *path_string = NULL;
+	zend_string *retval_string = NULL;
 #endif
 
 #if PHP_VERSION_ID >= 70000
@@ -266,7 +266,7 @@ PHP_METHOD(ZookeeperClient, getChildren)
     struct String_vector children;
 	int i;
 #if PHP_VERSION_ID >= 70000
-    zend_string *path_string;
+    zend_string *path_string = NULL;
 #endif
 
 #if PHP_VERSION_ID >= 70000
@@ -316,9 +316,9 @@ PHP_METHOD(ZookeeperClient, create)
     char *buffer = NULL;
     int buffer_len = 0;
 #if PHP_VERSION_ID >= 70000
-    zend_string *path_string;
-    zend_string *value_string;
-	zend_string *retval;
+    zend_string *path_string = NULL;
+    zend_string *value_string = NULL;
+	zend_string *retval = NULL;
 #endif
 
 #if PHP_VERSION_ID >= 70000
@@ -331,8 +331,10 @@ PHP_METHOD(ZookeeperClient, create)
 #if PHP_VERSION_ID >= 70000
     path = path_string->val;
     path_len = path_string->len;
-    value = value_string->val;
-    value_len = value_string->len;
+    if (value_string) {
+        value = value_string->val;
+        value_len = value_string->len;
+    }
 #endif
     if (!value
             || strlen(value) <= 0) {
@@ -381,7 +383,7 @@ PHP_METHOD(ZookeeperClient, delete)
     int response = ZOK;
     int version = 0;
 #if PHP_VERSION_ID >= 70000
-    zend_string *path_string;
+    zend_string *path_string = NULL;
 #endif
 
 #if PHP_VERSION_ID >= 70000
@@ -420,7 +422,7 @@ PHP_METHOD(ZookeeperClient, exists)
     struct Stat stat;
     int response = ZOK;
 #if PHP_VERSION_ID >= 70000
-    zend_string *path_string;
+    zend_string *path_string = NULL;
 #endif
 
 #if PHP_VERSION_ID >= 70000
