@@ -242,12 +242,14 @@ PHP_METHOD(ZookeeperClient, get)
     }
 	/* Found NULL in node */
     if (retval_len <= 0) {
+        efree(retval);
 		RETURN_NULL();
     }
 
     retval[retval_len] = 0;
 #if PHP_VERSION_ID >= 70000
 	retval_string = zend_string_init(retval, retval_len, 0);
+    efree(retval);
 	RETURN_STR(retval_string);
 #else
     RETURN_STRINGL(retval, retval_len, 0);
@@ -353,7 +355,9 @@ PHP_METHOD(ZookeeperClient, create)
     buffer = emalloc(buffer_len);
 
     response = zoo_create(storage->zk_handle, path, value, value_len, &acl_vector, 0, buffer, buffer_len);
+    efree(acl_vector.data);
     if (response != ZOK) {
+        efree(buffer);
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
@@ -361,6 +365,7 @@ PHP_METHOD(ZookeeperClient, create)
     buffer[buffer_len - 1] = 0;
 #if PHP_VERSION_ID >= 70000
 	retval = zend_string_init(buffer, buffer_len - 1, 0);
+    efree(buffer);
 	RETURN_STR(retval);
 #else
     RETURN_STRINGL(buffer, buffer_len - 1, 0);
