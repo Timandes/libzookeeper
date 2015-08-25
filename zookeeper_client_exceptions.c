@@ -1,9 +1,7 @@
 /* $Id$ */
 
 #include "zookeeper_client_exceptions.h"
-#if PHP_VERSION_ID >= 70000
 #include <Zend/zend_exceptions.h>
-#endif
 
 // ---- Core functions ----
 
@@ -29,11 +27,11 @@ void register_zookeeper_client_exception_classes(TSRMLS_D)
     } else {
         zookeeper_client_exception_class_entry = zend_register_internal_class_ex(&class_entry
 #if PHP_VERSION_ID < 70000
-				, zend_exception_get_default(TSRMLS_C), NULL 
+				, zend_exception_get_default(TSRMLS_C), NULL TSRMLS_CC
 #else
                 , zend_ce_exception
 #endif
-				TSRMLS_CC);
+				);
     }
 
     INIT_CLASS_ENTRY(class_entry, "ZookeeperClientCoreException", NULL);
