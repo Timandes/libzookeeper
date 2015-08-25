@@ -4,6 +4,50 @@
 #include "zookeeper_client_exceptions.h"
 #include "error_codes.h"
 
+// ---- Definitions ----
+
+ZEND_BEGIN_ARG_INFO_EX(connect_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, hosts)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(get_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(getChildren_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(create_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(delete_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(exists_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(set_arg_info, 0, 0, 2)
+    ZEND_ARG_INFO(0, path)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
+zend_function_entry zookeeper_client_method_entry[] = {
+    PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, getChildren, getChildren_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, create, create_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, delete, delete_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, exists, exists_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, set, set_arg_info, ZEND_ACC_PUBLIC)
+
+    { NULL, NULL, NULL }
+};
+
 // ---- Core functions ----
 
 void register_zookeeper_client_class(TSRMLS_D)
@@ -115,50 +159,6 @@ void zookeeper_client_free_object(
     zend_object_std_dtor(&storage_object->object TSRMLS_CC);
     efree(storage_object);
 }
-
-// ---- Definitions ----
-
-ZEND_BEGIN_ARG_INFO_EX(connect_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, hosts)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(get_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, path)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(getChildren_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, path)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(create_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, path)
-    ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(delete_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, path)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(exists_arg_info, 0, 0, 1)
-    ZEND_ARG_INFO(0, path)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(set_arg_info, 0, 0, 2)
-    ZEND_ARG_INFO(0, path)
-    ZEND_ARG_INFO(0, value)
-ZEND_END_ARG_INFO()
-
-zend_function_entry zookeeper_client_method_entry[] = {
-    PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
-    PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
-    PHP_ME(ZookeeperClient, getChildren, getChildren_arg_info, ZEND_ACC_PUBLIC)
-    PHP_ME(ZookeeperClient, create, create_arg_info, ZEND_ACC_PUBLIC)
-    PHP_ME(ZookeeperClient, delete, delete_arg_info, ZEND_ACC_PUBLIC)
-    PHP_ME(ZookeeperClient, exists, exists_arg_info, ZEND_ACC_PUBLIC)
-    PHP_ME(ZookeeperClient, set, set_arg_info, ZEND_ACC_PUBLIC)
-
-    { NULL, NULL, NULL }
-};
 
 // ---- PHP Methods ----
 
