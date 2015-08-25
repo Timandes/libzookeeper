@@ -10,7 +10,8 @@ Communicate with Zookeeper using PHP.
 Requirements
 ====
 
-* [Zookeeper C Client](https://zookeeper.apache.org/)
+* [Zookeeper C Client](https://zookeeper.apache.org/) (v3.4, v3.5)
+* [PHP](http://www.php.net/) (v5.3, v5.4, v7.0)
 
 Install
 ====
