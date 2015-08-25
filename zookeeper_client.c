@@ -387,7 +387,6 @@ PHP_METHOD(ZookeeperClient, delete)
     char *path = NULL;
     int path_len = 0;
     int response = ZOK;
-    int version = 0;
 #if PHP_VERSION_ID >= 70000
     zend_string *path_string = NULL;
 #endif
@@ -410,7 +409,7 @@ PHP_METHOD(ZookeeperClient, delete)
         return;
     }
 
-    response = zoo_delete(storage->zk_handle, path, version);
+    response = zoo_delete(storage->zk_handle, path, -1);
     if (response != ZOK) {
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
