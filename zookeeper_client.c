@@ -503,7 +503,6 @@ PHP_METHOD(ZookeeperClient, set)
 
     response = zoo_set(storage->zk_handle, path, value, value_len, -1);
     if (response != ZOK) {
-        efree(buffer);
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
