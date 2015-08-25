@@ -13,4 +13,4 @@ try {
 }
 ?>
 --EXPECT--
-[#-110] node exists 
+[#-101] no node
