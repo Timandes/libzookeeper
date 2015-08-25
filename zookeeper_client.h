@@ -18,6 +18,7 @@ PHP_METHOD(ZookeeperClient, getChildren);
 PHP_METHOD(ZookeeperClient, create);
 PHP_METHOD(ZookeeperClient, delete);
 PHP_METHOD(ZookeeperClient, exists);
+PHP_METHOD(ZookeeperClient, set);
 
 /* } ZookeeperClient */
 

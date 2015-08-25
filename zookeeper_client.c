@@ -143,6 +143,11 @@ ZEND_BEGIN_ARG_INFO_EX(exists_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(set_arg_info, 0, 0, 2)
+    ZEND_ARG_INFO(0, path)
+    ZEND_ARG_INFO(0, value)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
@@ -150,6 +155,7 @@ zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, create, create_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, delete, delete_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, exists, exists_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, set, set_arg_info, ZEND_ACC_PUBLIC)
 
     { NULL, NULL, NULL }
 };
@@ -453,6 +459,54 @@ PHP_METHOD(ZookeeperClient, exists)
     }
 
     RETURN_FALSE;
+}
+
+PHP_METHOD(ZookeeperClient, set)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    char *value = NULL;
+    int value_len = 0;
+    int response = ZOK;
+#if PHP_VERSION_ID >= 70000
+    zend_string *path_string = NULL;
+    zend_string *value_string = NULL;
+#endif
+
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|S!", &path_string, &value_string) == FAILURE) {
+#else
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s!", &path, &path_len, &value, &value_len) == FAILURE) {
+#endif
+        return;
+    }
+#if PHP_VERSION_ID >= 70000
+    path = path_string->val;
+    path_len = path_string->len;
+    if (value_string) {
+        value = value_string->val;
+        value_len = value_string->len;
+    }
+#endif
+    if (!value
+            || strlen(value) <= 0) {
+        value_len = -1;
+    }
+
+    storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
+    if (!storage->zk_handle) {
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'set'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
+        return;
+    }
+
+    response = zoo_set(storage->zk_handle, path, value, value_len, -1);
+    if (response != ZOK) {
+        efree(buffer);
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
+        return;
+    }
 }
 
 /*

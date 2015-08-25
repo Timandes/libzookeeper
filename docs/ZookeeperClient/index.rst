@@ -14,3 +14,4 @@ Contents:
     create
     delete
     exists
+    set
