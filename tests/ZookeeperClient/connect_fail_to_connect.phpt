@@ -12,5 +12,4 @@ try {
 }
 ?>
 --EXPECTF--
-%d-%d-%d %d:%d:%d,%d:%d(0x%x):ZOO_ERROR@%s@%d: invalid port in localhost
 [#1] Fail to initialize zookeeper client
