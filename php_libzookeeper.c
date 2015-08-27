@@ -89,7 +89,7 @@ PHP_MINIT_FUNCTION(libzookeeper)
     register_zookeeper_client_exception_classes(TSRMLS_C);
 
     /* Debug Level */
-    zoo_set_debug_level(ZOO_LOG_LEVEL_WARN);
+    zoo_set_debug_level(0);
 
     return SUCCESS;
 }
