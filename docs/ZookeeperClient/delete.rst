@@ -10,7 +10,7 @@ Description
 
 ::
 
-    public bool ZookeeperClient::delete(string path)
+    public bool ZookeeperClient::delete(string $path)
 
 Parameters
 ----------

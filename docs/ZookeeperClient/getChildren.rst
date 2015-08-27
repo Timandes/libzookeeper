@@ -10,7 +10,7 @@ Description
 
 ::
 
-    public array ZookeeperClient::getChildren(string path)
+    public array ZookeeperClient::getChildren(string $path)
 
 Parameters
 ----------

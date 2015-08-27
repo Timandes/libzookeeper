@@ -10,7 +10,7 @@ Description
 
 ::
 
-    public string ZookeeperClient::set(string path, string value)
+    public void ZookeeperClient::set(string $path, string $value)
 
 Parameters
 ----------

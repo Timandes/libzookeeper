@@ -10,7 +10,7 @@ Description
 
 ::
 
-    public bool ZookeeperClient::exists(string path)
+    public bool ZookeeperClient::exists(string $path)
 
 Parameters
 ----------

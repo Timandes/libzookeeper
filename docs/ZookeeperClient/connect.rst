@@ -10,7 +10,7 @@ Description
 
 ::
 
-    public void ZookeeperClient::connect(string hosts)
+    public void ZookeeperClient::connect(string $hosts)
 
 Parameters
 ----------
