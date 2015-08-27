@@ -61,3 +61,19 @@ ZookeeperClient::ERR_NOWATCHER
 
 ZookeeperClient::ERR_RWSERVERFOUND
     -122 /*!< r/w server found while in r/o mode */
+
+
+ZookeeperClient::LOG_LEVEL_NONE
+    0,
+
+ZookeeperClient::LOG_LEVEL_ERROR
+    1,
+
+ZookeeperClient::LOG_LEVEL_WARN
+    2,
+
+ZookeeperClient::LOG_LEVEL_INFO
+    3,
+
+ZookeeperClient::LOG_LEVEL_DEBUG
+    4,

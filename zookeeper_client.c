@@ -36,6 +36,10 @@ ZEND_BEGIN_ARG_INFO_EX(set_arg_info, 0, 0, 2)
     ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(setLogLevel_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, logLevel)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
@@ -44,6 +48,8 @@ zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, delete, delete_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, exists, exists_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, set, set_arg_info, ZEND_ACC_PUBLIC)
+
+    PHP_ME(ZookeeperClient, setLogLevel, setLogLevel_arg_info, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 
     { NULL, NULL, NULL }
 };
@@ -69,6 +75,7 @@ void register_zookeeper_client_class(TSRMLS_D)
 
 void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
 {
+    // ERR_*
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_OK") - 1, ZOK TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_APIERROR") - 1, ZAPIERROR TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NONODE") - 1, ZNONODE TSRMLS_CC);
@@ -90,6 +97,13 @@ void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOWATCHER") - 1, ZNOWATCHER TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_RWSERVERFOUND") - 1, ZRWSERVERFOUND TSRMLS_CC);
 #endif
+
+    // LOG_LEVEL_*
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_NONE") - 1, 0 TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_ERROR") - 1, ZOO_LOG_LEVEL_ERROR TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_WARN") - 1, ZOO_LOG_LEVEL_WARN TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_INFO") - 1, ZOO_LOG_LEVEL_INFO TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_DEBUG") - 1, ZOO_LOG_LEVEL_DEBUG TSRMLS_CC);
 }
 
 #if PHP_VERSION_ID >= 70000
@@ -505,6 +519,21 @@ PHP_METHOD(ZookeeperClient, set)
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
         return;
     }
+}
+
+PHP_METHOD(ZookeeperClient, setLogLevel)
+{
+    long log_level = 0;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS()
+#if PHP_VERSION_ID < 70000
+            TSRMLS_CC
+#endif
+            , "l", &log_level) == FAILURE) {
+        return;
+    }
+
+    zoo_set_debug_level((ZooLogLevel)log_level);
 }
 
 /*

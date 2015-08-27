@@ -17,6 +17,7 @@ PHP_METHOD(ZookeeperClient, create);
 PHP_METHOD(ZookeeperClient, delete);
 PHP_METHOD(ZookeeperClient, exists);
 PHP_METHOD(ZookeeperClient, set);
+PHP_METHOD(ZookeeperClient, setLogLevel);
 
 /* } ZookeeperClient */
 
