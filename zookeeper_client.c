@@ -81,6 +81,21 @@ void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
 {
     // ERR_*
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_OK") - 1, ZOK TSRMLS_CC);
+
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_SYSTEMERROR") - 1, ZSYSTEMERROR TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_RUNTIMEINCONSISTENCY") - 1, ZRUNTIMEINCONSISTENCY TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_DATAINCONSISTENCY") - 1, ZDATAINCONSISTENCY TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_CONNECTIONLOSS") - 1, ZCONNECTIONLOSS TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_MARSHALLINGERROR") - 1, ZMARSHALLINGERROR TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_UNIMPLEMENTED") - 1, ZUNIMPLEMENTED TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_OPERATIONTIMEOUT") - 1, ZOPERATIONTIMEOUT TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_BADARGUMENTS") - 1, ZBADARGUMENTS TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_INVALIDSTATE") - 1, ZINVALIDSTATE TSRMLS_CC);
+#if ZOO_MAJOR_VERSION>=3 && ZOO_MINOR_VERSION>=5
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NEWCONFIGNOQUORUM") - 1, ZNEWCONFIGNOQUORUM TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_RECONFIGINPROGRESS") - 1, ZRECONFIGINPROGRESS TSRMLS_CC);
+#endif
+
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_APIERROR") - 1, ZAPIERROR TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NONODE") - 1, ZNONODE TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("ERR_NOAUTH") - 1, ZNOAUTH TSRMLS_CC);
