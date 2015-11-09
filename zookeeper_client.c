@@ -36,6 +36,9 @@ ZEND_BEGIN_ARG_INFO_EX(set_arg_info, 0, 0, 2)
     ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(close_arg_info, 0, 0, 1)
+ZEND_END_ARG_INFO()
+
 ZEND_BEGIN_ARG_INFO_EX(setLogLevel_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, logLevel)
 ZEND_END_ARG_INFO()
@@ -48,6 +51,7 @@ zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, delete, delete_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, exists, exists_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, set, set_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, close, close_arg_info, ZEND_ACC_PUBLIC)
 
     PHP_ME(ZookeeperClient, setLogLevel, setLogLevel_arg_info, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 
@@ -187,6 +191,13 @@ PHP_METHOD(ZookeeperClient, connect)
     zend_string *hosts_string = NULL;
 #endif
 
+    storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
+
+    if (storage->zk_handle) {
+        throw_zookeeper_client_exception("Method 'close' should be called before 'connect'", LIBZOOKEEPER_ERROR_CLOSE_FIRST TSRMLS_CC);
+        return;
+    }
+
 #if PHP_VERSION_ID >= 70000
     if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &hosts_string) == FAILURE) {
 #else
@@ -204,7 +215,6 @@ PHP_METHOD(ZookeeperClient, connect)
         return;
     }
 
-	storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
     storage->zk_handle = zk_handle;
 }
 
@@ -534,6 +544,28 @@ PHP_METHOD(ZookeeperClient, setLogLevel)
     }
 
     zoo_set_debug_level((ZooLogLevel)log_level);
+}
+
+PHP_METHOD(ZookeeperClient, close)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    int response = ZOK;
+
+    storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
+
+    if (!storage->zk_handle) {
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'close'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
+        return;
+    }
+
+    response = zookeeper_close(storage->zk_handle);
+    if (response != ZOK) {
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
+        return;
+    }
+
+    storage->zk_handle = NULL;
 }
 
 /*
