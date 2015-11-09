@@ -42,6 +42,14 @@ void register_zookeeper_client_exception_classes(TSRMLS_D)
             );
 }
 
+void register_zookeeper_client_exception_class_constants(INIT_FUNC_ARGS)
+{
+    // ERR_*
+    zend_declare_class_constant_long(zookeeper_client_exception_class_entry, ZEND_STRS("ERR_INIT_FAILURE") - 1, LIBZOOKEEPER_ERROR_INIT_FAILURE TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_exception_class_entry, ZEND_STRS("ERR_CONNECT_FIRST") - 1, LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_exception_class_entry, ZEND_STRS("ERR_CLOSE_FIRST") - 1, LIBZOOKEEPER_ERROR_CLOSE_FIRST TSRMLS_CC);
+}
+
 void throw_zookeeper_client_exception(char *message, int code TSRMLS_DC)
 {
     zend_throw_exception(zookeeper_client_exception_class_entry, message, code TSRMLS_CC);

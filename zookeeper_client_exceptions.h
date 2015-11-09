@@ -17,6 +17,9 @@ zend_class_entry *zookeeper_client_core_exception_class_entry;
 /* Register classes extended from `RuntimeException` */
 void register_zookeeper_client_exception_classes(TSRMLS_D);
 
+/* Register Constants of `ZookeeperClientException` */
+void register_zookeeper_client_exception_class_constants(INIT_FUNC_ARGS);
+
 /* Throw `ZookeeperClientException` */
 void throw_zookeeper_client_exception(char *message, int code TSRMLS_DC);
 
