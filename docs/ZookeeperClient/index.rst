@@ -15,4 +15,5 @@ Contents:
     delete
     exists
     set
+    close
     setLogLevel
