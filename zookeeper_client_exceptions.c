@@ -1,6 +1,7 @@
 /* $Id$ */
 
 #include "zookeeper_client_exceptions.h"
+#include "error_codes.h"
 #include <Zend/zend_exceptions.h>
 
 // ---- Core functions ----
