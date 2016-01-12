@@ -9,8 +9,14 @@ env:
     - LIBZOOKEEPER_VERSION=3.5.0-alpha
     - LIBZOOKEEPER_VERSION=3.4.6
 
+addons:
+    apt:
+        packages:
+            - lcov
+
+sudo: false
+
 install:
-    - sudo apt-get install -y lcov
     - gem install coveralls-lcov
 
 before_script:
