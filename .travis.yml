@@ -5,6 +5,7 @@ php:
     - 5.3
 
 env:
+    - LIBZOOKEEPER_VERSION=3.5.1-alpha
     - LIBZOOKEEPER_VERSION=3.5.0-alpha
     - LIBZOOKEEPER_VERSION=3.4.6
 
