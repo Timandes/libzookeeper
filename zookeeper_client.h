@@ -80,6 +80,10 @@ static inline zookeeper_client_storage_object* zookeeper_client_storage_object_f
 #define FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me) zend_object_store_get_object(me TSRMLS_CC);
 #endif
 
+/* ACL functions */
+struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC);
+// TODO: zval *zookeeper_client_acl_vector_2_zarrval(struct ACL_vector *acls);
+
 #endif  /* ZOOKEEPER_CLIENT_H */
 
 

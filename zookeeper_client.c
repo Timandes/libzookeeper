@@ -3,6 +3,7 @@
 #include "zookeeper_client.h"
 #include "zookeeper_client_exceptions.h"
 #include "error_codes.h"
+#include "simulation.h"
 
 // ---- Definitions ----
 
@@ -21,6 +22,7 @@ ZEND_END_ARG_INFO()
 ZEND_BEGIN_ARG_INFO_EX(create_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, path)
     ZEND_ARG_INFO(0, value)
+    ZEND_ARG_INFO(0, acls)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(delete_arg_info, 0, 0, 1)
@@ -357,19 +359,21 @@ PHP_METHOD(ZookeeperClient, create)
     char *value = NULL;
     int value_len = 0;
     int response = ZOK;
-    struct ACL_vector acl_vector = { 0, };
+    struct ACL_vector *acl_vector_p = NULL;
     char *buffer = NULL;
     int buffer_len = 0;
 #if PHP_VERSION_ID >= 70000
     zend_string *path_string = NULL;
     zend_string *value_string = NULL;
-	zend_string *retval = NULL;
+    zend_string *retval = NULL;
 #endif
+    zval *acls = NULL;
+
 
 #if PHP_VERSION_ID >= 70000
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|S!", &path_string, &value_string) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "S|S!a!", &path_string, &value_string, &acls) == FAILURE) {
 #else
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s!", &path, &path_len, &value, &value_len) == FAILURE) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s!a!", &path, &path_len, &value, &value_len, &acls) == FAILURE) {
 #endif
         return;
     }
@@ -392,17 +396,25 @@ PHP_METHOD(ZookeeperClient, create)
         return;
     }
 
-    acl_vector.count = 1;
-    acl_vector.data = (struct ACL *)ecalloc(1, sizeof(struct ACL));
-    acl_vector.data[0].perms = ZOO_PERM_ALL;
-    acl_vector.data[0].id.id = "anyone";
-    acl_vector.data[0].id.scheme = "world";
+    // array => vector
+    acl_vector_p = zookeeper_client_zarrval_2_acl_vector(acls TSRMLS_CC);
+    if (NULL == acl_vector_p
+            || acl_vector_p->count <= 0) {
+        if (NULL == acl_vector_p)
+            acl_vector_p = (struct ACL_vector *)calloc(1, sizeof(struct ACL_vector));
+        acl_vector_p->count = 1;
+        acl_vector_p->data = (struct ACL *)calloc(1, sizeof(struct ACL));
+        acl_vector_p->data[0].perms = ZOO_PERM_ALL;
+        acl_vector_p->data[0].id.id = "anyone";
+        acl_vector_p->data[0].id.scheme = "world";
+    }
 
     buffer_len = path_len + 1;
     buffer = emalloc(buffer_len);
 
-    response = zoo_create(storage->zk_handle, path, value, value_len, &acl_vector, 0, buffer, buffer_len);
-    efree(acl_vector.data);
+    response = zoo_create(storage->zk_handle, path, value, value_len, acl_vector_p, 0, buffer, buffer_len);
+    free(acl_vector_p->data);
+    free(acl_vector_p);
     if (response != ZOK) {
         efree(buffer);
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
@@ -581,6 +593,85 @@ PHP_METHOD(ZookeeperClient, close)
     }
 
     storage->zk_handle = NULL;
+}
+
+
+// ---- ACL functions ----
+
+struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
+{
+    zval *parts = NULL;
+    int arr_count = 0;
+    struct ACL_vector *return_value = NULL;
+    int i = 0;
+#ifdef ZEND_ENGINE_3
+    zend_ulong h = 0;
+    zend_string *key = NULL;
+    zval *value = NULL;
+
+    zval *id = NULL;
+    zval *scheme = NULL;
+
+    zend_string *delim = NULL;
+
+    delim = zend_string_init(":", 1, 0);
+#else
+    ulong h = 0;
+    zval *key = NULL;
+    zval **value = NULL;
+
+    zval **id = NULL;
+    zval **scheme = NULL;
+
+    zval *delim = NULL;
+
+    ZEND_STRING(delim, ":", 0);
+#endif
+
+    // allocate
+    if (NULL == arr)
+        return return_value;
+
+    arr_count = zend_hash_num_elements(Z_ARRVAL_P(arr));
+    if (arr_count <= 0)
+        return return_value;
+
+    return_value = (struct ACL_vector *)calloc(1, sizeof(struct ACL_vector));
+    return_value->count = 0;
+    return_value->data = (struct ACL *)calloc(arr_count, sizeof(struct ACL));
+
+    // array => vector
+    ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(arr), h, key, value) {
+        // Split scheme & id from "scheme:id"
+        php_explode(delim, key, parts, 1);
+
+        if (Z_TYPE_P(parts) != IS_ARRAY
+                || zend_hash_num_elements(Z_ARRVAL_P(parts)) < 2) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Ilegal acl key");
+            continue;
+        }
+
+#ifdef ZEND_ENGINE_3
+        scheme = zend_hash_index_find(Z_ARRVAL_P(parts), 0);
+        id = zend_hash_index_find(Z_ARRVAL_P(parts), 1);
+
+        return_value->data[i].perms = (int32_t)Z_LVAL_P(value);
+        return_value->data[i].id.id = Z_STRVAL_P(id);
+        return_value->data[i].id.scheme = Z_STRVAL_P(scheme);
+#else
+        zend_hash_index_find(Z_ARRVAL_P(parts), 0, (void **)&scheme);
+        zend_hash_index_find(Z_ARRVAL_P(parts), 1, (void **)&id);
+
+        return_value->data[i].perms = (int32_t)Z_LVAL_PP(value);
+        return_value->data[i].id.id = Z_STRVAL_PP(id);
+        return_value->data[i].id.scheme = Z_STRVAL_PP(scheme);
+#endif
+
+        i++;
+    } ZEND_HASH_FOREACH_END();
+    return_value->count = i;
+
+    return return_value;
 }
 
 /*
