@@ -613,8 +613,6 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
     zval *scheme = NULL;
 
     zend_string *delim = NULL;
-
-    delim = zend_string_init(":", 1, 0);
 #else
     ulong h = 0;
     zval *key = NULL;
@@ -624,8 +622,6 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
     zval **scheme = NULL;
 
     zval *delim = NULL;
-
-    ZEND_STRING(delim, ":", 0);
 #endif
 
     // allocate
