@@ -636,6 +636,12 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
     if (arr_count <= 0)
         return return_value;
 
+#ifdef ZEND_ENGINE_3
+    delim = zend_string_init(":", 1, 0);
+#else
+    ZVAL_STRING(delim, ":", 0);
+#endif
+
     return_value = (struct ACL_vector *)calloc(1, sizeof(struct ACL_vector));
     return_value->count = 0;
     return_value->data = (struct ACL *)calloc(arr_count, sizeof(struct ACL));
@@ -670,6 +676,10 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
         i++;
     } ZEND_HASH_FOREACH_END();
     return_value->count = i;
+
+#ifdef ZEND_ENGINE_3
+    zend_string_free(delim);
+#endif
 
     return return_value;
 }
