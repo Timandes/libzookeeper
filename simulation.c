@@ -9,7 +9,7 @@ void zend_hash_get_current_key_zval_ex(const HashTable *ht, zval *zkey, HashPosi
     ulong index = 0;
 
     zend_hash_get_current_key_ex(ht, &key, &key_len, &index, 0, pos);
-    ZEND_STRINGL(zkey, key, key_len, 0);
+    ZVAL_STRINGL(zkey, key, key_len, 0);
 }
 
 /*
