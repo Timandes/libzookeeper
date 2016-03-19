@@ -608,7 +608,6 @@ PHP_METHOD(ZookeeperClient, close)
 
 struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 {
-    zval *parts = NULL;
     int arr_count = 0;
     struct ACL_vector *return_value = NULL;
     int i = 0;
@@ -621,6 +620,7 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
     zval *scheme = NULL;
 
     zend_string *delim = NULL;
+    zval zparts;
 #else
     ulong h = 0;
     zval *key = NULL;
@@ -631,6 +631,7 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 
     zval *delim = NULL;
 #endif
+    zval *parts = NULL;
 
     // allocate
     if (NULL == arr)
@@ -642,9 +643,13 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 
 #ifdef ZEND_ENGINE_3
     delim = zend_string_init(":", 1, 0);
+
+    parts = &zparts;
 #else
     MAKE_STD_ZVAL(delim);
     ZVAL_STRING(delim, ":", 1);
+
+    MAKE_STD_ZVAL(parts);
 #endif
 
     return_value = (struct ACL_vector *)calloc(1, sizeof(struct ACL_vector));
@@ -653,6 +658,8 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 
     // array => vector
     ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(arr), h, key, value) {
+        array_init(parts);
+
         // Split scheme & id from "scheme:id"
         php_explode(delim, key, parts, 1);
 
