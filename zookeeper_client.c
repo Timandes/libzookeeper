@@ -125,6 +125,14 @@ void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_WARN") - 1, ZOO_LOG_LEVEL_WARN TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_INFO") - 1, ZOO_LOG_LEVEL_INFO TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("LOG_LEVEL_DEBUG") - 1, ZOO_LOG_LEVEL_DEBUG TSRMLS_CC);
+
+    // PERM_*
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_READ") - 1, ZOO_PERM_READ TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_WRITE") - 1, ZOO_PERM_WRITE TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_CREATE") - 1, ZOO_PERM_CREATE TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_DELETE") - 1, ZOO_PERM_DELETE TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_ADMIN") - 1, ZOO_PERM_ADMIN TSRMLS_CC);
+    zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_ALL") - 1, ZOO_PERM_ALL TSRMLS_CC);
 }
 
 #if PHP_VERSION_ID >= 70000
@@ -635,7 +643,8 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 #ifdef ZEND_ENGINE_3
     delim = zend_string_init(":", 1, 0);
 #else
-    ZVAL_STRING(delim, ":", 0);
+    MAKE_STD_ZVAL(delim);
+    ZVAL_STRING(delim, ":", 1);
 #endif
 
     return_value = (struct ACL_vector *)calloc(1, sizeof(struct ACL_vector));
@@ -675,6 +684,8 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 
 #ifdef ZEND_ENGINE_3
     zend_string_free(delim);
+#else
+    efree(delim);
 #endif
 
     return return_value;
