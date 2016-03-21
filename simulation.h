@@ -23,6 +23,8 @@ void zend_hash_get_current_key_zval_ex(const HashTable *ht, zval *key, HashPosit
 
 #endif
 
+void *zend_hash_str_find_ptr(const HashTable *ht, const char *str, size_t len);
+
 #endif  /* LIBZOOKEEPER_SIMULATION_H */
 
 /*

@@ -67,6 +67,15 @@ void throw_zookeeper_client_core_exception(int code TSRMLS_DC)
     zend_throw_exception(zookeeper_client_core_exception_class_entry, message, (long)code TSRMLS_CC);
 }
 
+void throw_domain_exception(char *message, int code TSRMLS_DC)
+{
+    zend_class_entry **domain_exception_class_entry = NULL;
+    char *domain_exception_class_name = "domainexception";
+
+    domain_exception_class_entry = zend_hash_str_find_ptr(CG(class_table), ZEND_STRL(domain_exception_class_name));
+    zend_throw_exception(domain_exception_class_entry, message, code TSRMLS_CC);
+}
+
 /*
  * Local variables:
  * tab-width: 4

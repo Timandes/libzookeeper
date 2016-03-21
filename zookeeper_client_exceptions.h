@@ -26,6 +26,9 @@ void throw_zookeeper_client_exception(char *message, int code TSRMLS_DC);
 /* Throw `ZookeeperClientCoreException` */
 void throw_zookeeper_client_core_exception(int code TSRMLS_DC);
 
+/* Throw `DomainException` */
+void throw_domain_exception(char *message, int code TSRMLS_DC);
+
 #endif  /* ZOOKEEPER_CLIENT_EXCEPTIONS_H */
 
 

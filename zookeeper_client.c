@@ -45,6 +45,11 @@ ZEND_BEGIN_ARG_INFO_EX(setLogLevel_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, logLevel)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(setAcls_arg_info, 0, 0, 2)
+    ZEND_ARG_INFO(0, path)
+    ZEND_ARG_INFO(0, acls)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
@@ -54,6 +59,8 @@ zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, exists, exists_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, set, set_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, close, close_arg_info, ZEND_ACC_PUBLIC)
+
+    PHP_ME(ZookeeperClient, setAcls, setAcls_arg_info, ZEND_ACC_PUBLIC)
 
     PHP_ME(ZookeeperClient, setLogLevel, setLogLevel_arg_info, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 
@@ -601,6 +608,54 @@ PHP_METHOD(ZookeeperClient, close)
     }
 
     storage->zk_handle = NULL;
+}
+
+PHP_METHOD(ZookeeperClient, setAcls)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    int response = ZOK;
+#if PHP_VERSION_ID >= 70000
+    zend_string *path_string = NULL;
+#endif
+    zval *acls = NULL;
+    struct ACL_vector *acl_vector_p = NULL;
+
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "Sa!", &path_string, &acls) == FAILURE) {
+#else
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa!", &path, &path_len, &acls) == FAILURE) {
+#endif
+        return;
+    }
+#if ZEND_ENGINE_3
+    path = ZSTR_VAL(path_string);
+    path_len = ZSTR_LEN(path_string);
+#endif
+
+    storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
+    if (!storage->zk_handle) {
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'setAcls'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
+        return;
+    }
+
+    // array => vector
+    acl_vector_p = zookeeper_client_zarrval_2_acl_vector(acls TSRMLS_CC);
+    if (NULL == acl_vector_p
+            || acl_vector_p->count <= 0) {
+        throw_domain_exception("Parameter `acls` must not be empty", 0);
+        return;
+    }
+
+    response = zoo_set_acl(storage->zk_handle, path, -1, acl_vector_p);
+    free(acl_vector_p->data);
+    free(acl_vector_p);
+    if (response != ZOK) {
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
+        return;
+    }
 }
 
 

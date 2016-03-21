@@ -12,6 +12,16 @@ void zend_hash_get_current_key_zval_ex(const HashTable *ht, zval *zkey, HashPosi
     ZVAL_STRINGL(zkey, key, key_len, 0);
 }
 
+void *zend_hash_str_find_ptr(const HashTable *ht, const char *str, size_t len)
+{
+    zend_class_entry **class_entry = NULL;
+
+    if (zend_hash_find(ht, str, len, (void **) &class_entry) == SUCCESS)
+        return class_entry;
+    else
+        return NULL;
+}
+
 /*
  * Local variables:
  * tab-width: 4
