@@ -701,6 +701,8 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 
     parts = &zparts;
 #else
+    MAKE_STD_ZVAL(key);
+
     MAKE_STD_ZVAL(delim);
     ZVAL_STRING(delim, ":", 1);
 

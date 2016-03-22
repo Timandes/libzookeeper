@@ -1,6 +1,9 @@
 /* $Id$ */
 
+#include "php.h"
 #include "simulation.h"
+
+#ifndef ZEND_ENGINE_3
 
 void zend_hash_get_current_key_zval_ex(const HashTable *ht, zval *zkey, HashPosition *pos)
 {
@@ -14,13 +17,15 @@ void zend_hash_get_current_key_zval_ex(const HashTable *ht, zval *zkey, HashPosi
 
 void *zend_hash_str_find_ptr(const HashTable *ht, const char *str, size_t len)
 {
-    zend_class_entry **class_entry = NULL;
+    void *return_value = NULL;
 
-    if (zend_hash_find(ht, str, len, (void **) &class_entry) == SUCCESS)
-        return class_entry;
+    if (zend_hash_find(ht, str, len,  &return_value) == SUCCESS)
+        return return_value;
     else
         return NULL;
 }
+
+#endif
 
 /*
  * Local variables:

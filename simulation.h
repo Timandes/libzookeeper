@@ -12,7 +12,7 @@ void zend_hash_get_current_key_zval_ex(const HashTable *ht, zval *key, HashPosit
 
 #define ZEND_HASH_FOREACH_KEY_VAL(ht, _h, _key, _val) do { \
     for (zend_hash_internal_pointer_reset(ht); \
-            zend_hash_has_more_elements(ht); \
+            (zend_hash_has_more_elements(ht) == SUCCESS); \
             zend_hash_move_forward(ht)) { \
         zend_hash_get_current_key_zval(ht, _key); \
         zend_hash_get_current_data(ht, (void**)&_val); \
