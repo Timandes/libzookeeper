@@ -630,7 +630,7 @@ PHP_METHOD(ZookeeperClient, setAcls)
 #endif
         return;
     }
-#if ZEND_ENGINE_3
+#ifdef ZEND_ENGINE_3
     path = ZSTR_VAL(path_string);
     path_len = ZSTR_LEN(path_string);
 #endif
