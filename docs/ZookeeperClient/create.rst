@@ -10,7 +10,7 @@ Description
 
 ::
 
-    public string ZookeeperClient::create(string $path [, string $value])
+    public string ZookeeperClient::create(string $path [[, string $value], array acls])
 
 Parameters
 ----------
@@ -20,6 +20,9 @@ path
 
 value
     Default value of the new node
+
+acls
+    The acls to be set on the path
 
 Return Values
 -------------
