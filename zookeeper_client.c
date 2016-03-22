@@ -645,7 +645,7 @@ PHP_METHOD(ZookeeperClient, setAcls)
     acl_vector_p = zookeeper_client_zarrval_2_acl_vector(acls TSRMLS_CC);
     if (NULL == acl_vector_p
             || acl_vector_p->count <= 0) {
-        throw_domain_exception("Parameter `acls` must not be empty", 0);
+        throw_domain_exception("Parameter `acls` must not be empty", 0 TSRMLS_CC);
         return;
     }
 
