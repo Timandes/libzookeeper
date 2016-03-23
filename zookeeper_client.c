@@ -50,6 +50,10 @@ ZEND_BEGIN_ARG_INFO_EX(setAcls_arg_info, 0, 0, 2)
     ZEND_ARG_INFO(0, acls)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(getAcls_arg_info, 0, 0, 1)
+    ZEND_ARG_INFO(0, path)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
@@ -61,6 +65,7 @@ zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, close, close_arg_info, ZEND_ACC_PUBLIC)
 
     PHP_ME(ZookeeperClient, setAcls, setAcls_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, getAcls, getAcls_arg_info, ZEND_ACC_PUBLIC)
 
     PHP_ME(ZookeeperClient, setLogLevel, setLogLevel_arg_info, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 
@@ -658,6 +663,47 @@ PHP_METHOD(ZookeeperClient, setAcls)
     }
 }
 
+PHP_METHOD(ZookeeperClient, getAcls)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *path = NULL;
+    int path_len = 0;
+    int response = ZOK;
+    struct Stat stat;
+#if PHP_VERSION_ID >= 70000
+    zend_string *path_string = NULL;
+    zend_string *retval_string = NULL;
+#endif
+    struct ACL_vector acls = {0, };
+
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "S", &path_string) == FAILURE) {
+#else
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &path, &path_len) == FAILURE) {
+#endif
+        return;
+    }
+#ifdef ZEND_ENGINE_3
+    path = ZSTR_VAL(path_string);
+    path_len = ZSTR_LEN(path_string);
+#endif
+
+    storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
+
+    if (!storage->zk_handle) {
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'getAcls'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
+        return;
+    }
+
+    response = zoo_get_acl(storage->zk_handle, path, &acls, &stat);
+    if (response != ZOK) {
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
+        return;
+    }
+
+    zookeeper_client_acl_vector_2_zarrval(&acls, return_value);
+}
 
 // ---- ACL functions ----
 
@@ -753,6 +799,24 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
 #endif
 
     return return_value;
+}
+
+void zookeeper_client_acl_vector_2_zarrval(struct ACL_vector *acls, zval *return_value TSRMLS_DC)
+{
+    int i = 0;
+    char *key = NULL;
+    size_t key_len = 0;
+
+    array_init(return_value);
+    for (i=0; i<acls->count; ++i) {
+        key_len = strlen(acls->data[i].id.id) + strlen(acls->data[i].id.scheme) + 1;
+        key = (char *)calloc(key_len, sizeof(char));
+        sprintf(key, "%s:%s", acls->data[i].id.scheme, acls->data[i].id.id);
+
+        add_assoc_long_ex(return_value, key, key_len, acls->data[i].perms);
+
+        free(key);
+    }
 }
 
 /*
