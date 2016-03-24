@@ -72,12 +72,20 @@ void throw_domain_exception(char *message, int code TSRMLS_DC)
     zend_class_entry **domain_exception_class_entry_pp = NULL;
     char *domain_exception_class_name = "domainexception";
 
-    domain_exception_class_entry_pp = (zend_class_entry **)zend_hash_str_find_ptr(CG(class_table), domain_exception_class_name, strlen(domain_exception_class_name) + 1);
+    domain_exception_class_entry_pp = (zend_class_entry **)zend_hash_str_find_ptr(CG(class_table), domain_exception_class_name, strlen(domain_exception_class_name)
+#ifndef ZEND_ENGINE_3
+        + 1
+#endif
+        );
     if (NULL == domain_exception_class_entry_pp) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "Could not find class `DomainException`");
         return;
     }
-    zend_throw_exception(*domain_exception_class_entry_pp, message, code TSRMLS_CC);
+    zend_throw_exception(
+#ifndef ZEND_ENGINE_3
+        *
+#endif
+        domain_exception_class_entry_pp, message, code TSRMLS_CC);
 }
 
 /*
