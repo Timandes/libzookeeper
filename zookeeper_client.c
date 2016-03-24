@@ -810,10 +810,15 @@ void zookeeper_client_acl_vector_2_zarrval(struct ACL_vector *acls, zval *return
     array_init(return_value);
     for (i=0; i<acls->count; ++i) {
         key_len = strlen(acls->data[i].id.id) + strlen(acls->data[i].id.scheme) + 1;
-        key = (char *)calloc(key_len, sizeof(char));
+        key = (char *)calloc(key_len + 1, sizeof(char));
         sprintf(key, "%s:%s", acls->data[i].id.scheme, acls->data[i].id.id);
+        key[key_len] = '\0';
 
-        add_assoc_long_ex(return_value, key, key_len, acls->data[i].perms);
+        add_assoc_long_ex(return_value, key, key_len
+#ifndef ZEND_ENGINE_3
+            + 1
+#endif
+            , acls->data[i].perms);
 
         free(key);
     }
