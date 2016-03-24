@@ -21,6 +21,7 @@ PHP_METHOD(ZookeeperClient, close);
 
 PHP_METHOD(ZookeeperClient, setAcls);
 PHP_METHOD(ZookeeperClient, getAcls);
+PHP_METHOD(ZookeeperClient, addAuth);
 
 PHP_METHOD(ZookeeperClient, setLogLevel);
 

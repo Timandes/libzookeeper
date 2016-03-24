@@ -54,6 +54,11 @@ ZEND_BEGIN_ARG_INFO_EX(getAcls_arg_info, 0, 0, 1)
     ZEND_ARG_INFO(0, path)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(addAuth_arg_info, 0, 0, 2)
+    ZEND_ARG_INFO(0, scheme)
+    ZEND_ARG_INFO(0, id)
+ZEND_END_ARG_INFO()
+
 zend_function_entry zookeeper_client_method_entry[] = {
     PHP_ME(ZookeeperClient, connect, connect_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, get, get_arg_info, ZEND_ACC_PUBLIC)
@@ -66,6 +71,7 @@ zend_function_entry zookeeper_client_method_entry[] = {
 
     PHP_ME(ZookeeperClient, setAcls, setAcls_arg_info, ZEND_ACC_PUBLIC)
     PHP_ME(ZookeeperClient, getAcls, getAcls_arg_info, ZEND_ACC_PUBLIC)
+    PHP_ME(ZookeeperClient, addAuth, addAuth_arg_info, ZEND_ACC_PUBLIC)
 
     PHP_ME(ZookeeperClient, setLogLevel, setLogLevel_arg_info, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 
@@ -703,6 +709,48 @@ PHP_METHOD(ZookeeperClient, getAcls)
     }
 
     zookeeper_client_acl_vector_2_zarrval(&acls, return_value TSRMLS_CC);
+}
+
+PHP_METHOD(ZookeeperClient, addAuth)
+{
+    zval *me = getThis();
+    zookeeper_client_storage_object *storage;
+    char *scheme = NULL;
+    int scheme_len = 0;
+    char *cert = NULL;
+    int cert_len = 0;
+    struct Stat stat;
+    int response = ZOK;
+#ifdef ZEND_ENGINE_3
+    zend_string *scheme_string = NULL;
+    zend_string *cert_string = NULL;
+#endif
+
+#if PHP_VERSION_ID >= 70000
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "SS", &scheme_string, &cert_string) == FAILURE) {
+#else
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ss", &scheme, &scheme_len, &cert, &cert_len) == FAILURE) {
+#endif
+        return;
+    }
+#ifdef ZEND_ENGINE_3
+    scheme = ZSTR_VAL(scheme_string);
+    scheme_len = ZSTR_LEN(scheme_string);
+    cert = ZSTR_VAL(cert_string);
+    cert_len = ZSTR_LEN(cert_string);
+#endif
+    storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
+
+    if (!storage->zk_handle) {
+        throw_zookeeper_client_exception("Method 'connect' should be called before 'addAuth'", LIBZOOKEEPER_ERROR_CONNECT_FIRST TSRMLS_CC);
+        return;
+    }
+
+    response = zoo_add_auth(storage->zk_handle, scheme, cert, cert_len, NULL, NULL);
+    if (response != ZOK) {
+        throw_zookeeper_client_core_exception(response TSRMLS_CC);
+        return;
+    }
 }
 
 // ---- ACL functions ----
