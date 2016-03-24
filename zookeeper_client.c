@@ -702,7 +702,7 @@ PHP_METHOD(ZookeeperClient, getAcls)
         return;
     }
 
-    zookeeper_client_acl_vector_2_zarrval(&acls, return_value);
+    zookeeper_client_acl_vector_2_zarrval(&acls, return_value TSRMLS_CC);
 }
 
 // ---- ACL functions ----
