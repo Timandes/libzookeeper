@@ -12,9 +12,7 @@
 #include "zookeeper_client_exceptions.h"
 #include "version.h"
 
-/* If you declare any globals in php_libzookeeper.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(libzookeeper)
-*/
 
 /* True global resources - no need for thread safety here */
 static int le_libzookeeper;
@@ -54,32 +52,31 @@ ZEND_GET_MODULE(libzookeeper)
 
 /* {{{ PHP_INI
  */
-/* Remove comments and fill if you need to have entries in php.ini
 PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("libzookeeper.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_libzookeeper_globals, libzookeeper_globals)
-    STD_PHP_INI_ENTRY("libzookeeper.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_libzookeeper_globals, libzookeeper_globals)
+    STD_PHP_INI_ENTRY("libzookeeper.log_level",      "0", PHP_INI_PERDIR, OnUpdateLong, log_level, zend_libzookeeper_globals, libzookeeper_globals)
 PHP_INI_END()
-*/
 /* }}} */
 
 /* {{{ php_libzookeeper_init_globals
  */
-/* Uncomment this function if you have INI entries
 static void php_libzookeeper_init_globals(zend_libzookeeper_globals *libzookeeper_globals)
 {
-    libzookeeper_globals->global_value = 0;
-    libzookeeper_globals->global_string = NULL;
+    libzookeeper_globals->log_level = 0;
 }
-*/
 /* }}} */
+/* {{{ php_libzookeeper_destroy_globals
+ */
+static void php_libzookeeper_destroy_globals(zend_libzookeeper_globals *libzookeeper_globals)
+{
+}
+/* }}} */
+
 
 /* {{{ PHP_MINIT_FUNCTION
  */
 PHP_MINIT_FUNCTION(libzookeeper)
 {
-    /* If you have INI entries, uncomment these lines
     REGISTER_INI_ENTRIES();
-    */
 
     // zookeeper_client.h
     register_zookeeper_client_class(TSRMLS_C);
@@ -89,8 +86,12 @@ PHP_MINIT_FUNCTION(libzookeeper)
     register_zookeeper_client_exception_classes(TSRMLS_C);
     register_zookeeper_client_exception_class_constants(INIT_FUNC_ARGS_PASSTHRU);
 
-    /* Debug Level */
-    zoo_set_debug_level(0);
+#ifdef ZTS
+    ts_allocate_id(&libzookeeper_globals_id, sizeof(zend_libzookeeper_globals),
+                   (ts_allocate_ctor) php_libzookeeper_init_globals, (ts_allocate_dtor) php_libzookeeper_destroy_globals);
+#else
+    php_libzookeeper_init_globals(&libzookeeper_globals TSRMLS_CC);
+#endif
 
     return SUCCESS;
 }
@@ -100,9 +101,14 @@ PHP_MINIT_FUNCTION(libzookeeper)
  */
 PHP_MSHUTDOWN_FUNCTION(libzookeeper)
 {
-    /* uncomment this line if you have INI entries
+#ifdef ZTS
+    ts_free_id(libzookeeper_globals_id);
+#else
+    php_libzookeeper_destroy_globals(&libzookeeper_globals TSRMLS_CC);
+#endif
+
     UNREGISTER_INI_ENTRIES();
-    */
+
     return SUCCESS;
 }
 /* }}} */
@@ -112,6 +118,9 @@ PHP_MSHUTDOWN_FUNCTION(libzookeeper)
  */
 PHP_RINIT_FUNCTION(libzookeeper)
 {
+    /* Debug Level */
+    zoo_set_debug_level(LIBZOOKEEPER_G(log_level));
+
     return SUCCESS;
 }
 /* }}} */
@@ -141,9 +150,7 @@ PHP_MINFO_FUNCTION(libzookeeper)
 
     php_info_print_table_end();
 
-    /* Remove comments if you have entries in php.ini
     DISPLAY_INI_ENTRIES();
-    */
 }
 /* }}} */
 

@@ -24,15 +24,9 @@ PHP_RINIT_FUNCTION(libzookeeper);
 PHP_RSHUTDOWN_FUNCTION(libzookeeper);
 PHP_MINFO_FUNCTION(libzookeeper);
 
-/* 
-    Declare any global variables you may need between the BEGIN
-    and END macros here:     
-
 ZEND_BEGIN_MODULE_GLOBALS(libzookeeper)
-    long  global_value;
-    char *global_string;
+    long  log_level;
 ZEND_END_MODULE_GLOBALS(libzookeeper)
-*/
 
 /* In every utility function you add that needs to use variables 
    in php_libzookeeper_globals, call TSRMLS_FETCH(); after declaring other 
