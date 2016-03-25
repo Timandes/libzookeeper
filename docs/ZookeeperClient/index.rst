@@ -16,4 +16,9 @@ Contents:
     exists
     set
     close
+
+    addAuth
+    setAcls
+    getAcls
+
     setLogLevel

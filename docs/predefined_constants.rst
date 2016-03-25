@@ -112,6 +112,25 @@ ZookeeperClient::LOG_LEVEL_DEBUG
     4,
 
 
+ZookeeperClient::PERM_READ
+    1, //can read node’s value and list its children
+
+ZookeeperClient::PERM_WRITE
+    2, // can set the node’s value
+
+ZookeeperClient::PERM_CREATE
+    4, //can create children
+
+ZookeeperClient::PERM_DELETE
+    8, // can delete children
+
+ZookeeperClient::PERM_ADMIN
+    16, //can execute set_acl()
+
+ZookeeperClient::PERM_ALL
+    0x1f, // all of the above flags OR’d together
+
+
 ZookeeperClientException::ERR_INIT_FAILURE
     1,
 
