@@ -76,8 +76,6 @@ static void php_libzookeeper_destroy_globals(zend_libzookeeper_globals *libzooke
  */
 PHP_MINIT_FUNCTION(libzookeeper)
 {
-    REGISTER_INI_ENTRIES();
-
     // zookeeper_client.h
     register_zookeeper_client_class(TSRMLS_C);
     register_zookeeper_client_class_constants(INIT_FUNC_ARGS_PASSTHRU);
@@ -92,6 +90,8 @@ PHP_MINIT_FUNCTION(libzookeeper)
 #else
     php_libzookeeper_init_globals(&libzookeeper_globals TSRMLS_CC);
 #endif
+
+    REGISTER_INI_ENTRIES();
 
     return SUCCESS;
 }
