@@ -30,6 +30,8 @@ Examples
     var_dump($zc->get('/zookeeper'));
     ?>
 
+[More](http://libzookeeper.readthedocs.org/en/latest/examples.html)
+
 Reference
 ====
 
