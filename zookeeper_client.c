@@ -431,15 +431,15 @@ PHP_METHOD(ZookeeperClient, create)
         acl_vector_p->count = 1;
         acl_vector_p->data = (struct ACL *)calloc(1, sizeof(struct ACL));
         acl_vector_p->data[0].perms = ZOO_PERM_ALL;
-        acl_vector_p->data[0].id.id = "anyone";
-        acl_vector_p->data[0].id.scheme = "world";
+        acl_vector_p->data[0].id.id = strdup("anyone");
+        acl_vector_p->data[0].id.scheme = strdup("world");
     }
 
     buffer_len = path_len + 1;
     buffer = emalloc(buffer_len);
 
     response = zoo_create(storage->zk_handle, path, value, value_len, acl_vector_p, 0, buffer, buffer_len);
-    free(acl_vector_p->data);
+    zookeeper_client_acl_vector_destroy(acl_vector_p);
     free(acl_vector_p);
     if (response != ZOK) {
         efree(buffer);
@@ -661,7 +661,7 @@ PHP_METHOD(ZookeeperClient, setAcls)
     }
 
     response = zoo_set_acl(storage->zk_handle, path, -1, acl_vector_p);
-    free(acl_vector_p->data);
+    zookeeper_client_acl_vector_destroy(acl_vector_p);
     free(acl_vector_p);
     if (response != ZOK) {
         throw_zookeeper_client_core_exception(response TSRMLS_CC);
@@ -807,10 +807,9 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
     return_value->count = 0;
     return_value->data = (struct ACL *)calloc(arr_count, sizeof(struct ACL));
 
+    array_init(parts);
     // array => vector
     ZEND_HASH_FOREACH_KEY_VAL(Z_ARRVAL_P(arr), h, key, value) {
-        array_init(parts);
-
         // Split scheme & id from "scheme:id"
         php_explode(delim, key, parts, 1);
 
@@ -825,20 +824,24 @@ struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC)
         id = zend_hash_index_find(Z_ARRVAL_P(parts), 1);
 
         return_value->data[i].perms = (int32_t)Z_LVAL_P(value);
-        return_value->data[i].id.id = Z_STRVAL_P(id);
-        return_value->data[i].id.scheme = Z_STRVAL_P(scheme);
+        return_value->data[i].id.id = strdup(Z_STRVAL_P(id));
+        return_value->data[i].id.scheme = strdup(Z_STRVAL_P(scheme));
 #else
         zend_hash_index_find(Z_ARRVAL_P(parts), 0, (void **)&scheme);
         zend_hash_index_find(Z_ARRVAL_P(parts), 1, (void **)&id);
 
         return_value->data[i].perms = (int32_t)Z_LVAL_PP(value);
-        return_value->data[i].id.id = Z_STRVAL_PP(id);
-        return_value->data[i].id.scheme = Z_STRVAL_PP(scheme);
+        return_value->data[i].id.id = strdup(Z_STRVAL_PP(id));
+        return_value->data[i].id.scheme = strdup(Z_STRVAL_PP(scheme));
 #endif
+
+        zend_hash_clean(Z_ARRVAL_P(parts));
 
         i++;
     } ZEND_HASH_FOREACH_END();
     return_value->count = i;
+
+    zval_ptr_dtor(parts);
 
 #ifdef ZEND_ENGINE_3
     zend_string_free(delim);
@@ -870,6 +873,18 @@ void zookeeper_client_acl_vector_2_zarrval(struct ACL_vector *acls, zval *return
 
         efree(key);
     }
+}
+
+void zookeeper_client_acl_vector_destroy(struct ACL_vector *acls)
+{
+    int i;
+
+    for (i=0; i<acls->count; ++i) {
+        free(acls->data[i].id.id);
+        free(acls->data[i].id.scheme);
+    }
+
+    free(acls->data);
 }
 
 /*

@@ -87,6 +87,7 @@ static inline zookeeper_client_storage_object* zookeeper_client_storage_object_f
 /* ACL functions */
 struct ACL_vector *zookeeper_client_zarrval_2_acl_vector(zval *arr TSRMLS_DC);
 void zookeeper_client_acl_vector_2_zarrval(struct ACL_vector *acls, zval *return_value TSRMLS_DC);
+void zookeeper_client_acl_vector_destroy(struct ACL_vector *acls);
 
 #endif  /* ZOOKEEPER_CLIENT_H */
 
