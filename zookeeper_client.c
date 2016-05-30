@@ -271,6 +271,7 @@ PHP_METHOD(ZookeeperClient, get)
     struct Stat stat;
     char *retval = NULL;
     int retval_len = 0;
+    int i, original_len;
 #if PHP_VERSION_ID >= 70000
     zend_string *path_string = NULL;
 	zend_string *retval_string = NULL;
@@ -302,24 +303,34 @@ PHP_METHOD(ZookeeperClient, get)
     }
 
     /* Found NULL in node */
-    if (stat.dataLength < 0)
+    if (stat.dataLength <= 0)
         RETURN_NULL();
 
-	retval_len = stat.dataLength + 1;
-    retval = emalloc(retval_len);
-    response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, &retval_len, &stat);
-    if (response != ZOK) {
+    original_len = stat.dataLength;
+    for (i=0; i<3; ++i) {
+	    retval_len = original_len;
+        retval = emalloc(retval_len);
+        response = zoo_wget(storage->zk_handle, path, NULL, NULL, retval, &retval_len, &stat);
+        if (response != ZOK) {
+            efree(retval);
+            throw_zookeeper_client_core_exception(response TSRMLS_CC);
+            return;
+        }
+
+        if (original_len >= stat.dataLength)
+            break;
+
+        /* Buffer overflow */
+        original_len = stat.dataLength;
         efree(retval);
-        throw_zookeeper_client_core_exception(response TSRMLS_CC);
-        return;
     }
+
 	/* Found NULL in node */
     if (retval_len <= 0) {
         efree(retval);
 		RETURN_NULL();
     }
 
-    retval[retval_len] = 0;
 #if PHP_VERSION_ID >= 70000
 	retval_string = zend_string_init(retval, retval_len, 0);
     efree(retval);
