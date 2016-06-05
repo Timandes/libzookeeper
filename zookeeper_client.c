@@ -80,6 +80,10 @@ zend_function_entry zookeeper_client_method_entry[] = {
 
 // ---- Core functions ----
 
+/* {{{ register_zookeeper client_class
+ *
+ * Register Class ZookeeperClient
+ */
 void register_zookeeper_client_class(TSRMLS_D)
 {
     zend_class_entry class_entry;
@@ -91,12 +95,19 @@ void register_zookeeper_client_class(TSRMLS_D)
 #endif
 			TSRMLS_CC);
     zookeeper_client_class_entry->create_object = zookeeper_client_create_object;
-	memcpy(&zookeeper_client_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+
 #if PHP_VERSION_ID >= 70000
+	memcpy(&zookeeper_client_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+	zookeeper_client_object_handlers.offset = XtOffsetOf(zookeeper_client_storage_object, object);
 	zookeeper_client_object_handlers.free_obj = (zend_object_free_obj_t)zookeeper_client_free_object;
 #endif
 }
+/* }}} */
 
+/* {{{ register_zookeeper_client_class_constants
+ *
+ * Register Constants of ZookeeperClient
+ */
 void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
 {
     // ERR_*
@@ -152,7 +163,9 @@ void register_zookeeper_client_class_constants(INIT_FUNC_ARGS)
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_ADMIN") - 1, ZOO_PERM_ADMIN TSRMLS_CC);
     zend_declare_class_constant_long(zookeeper_client_class_entry, ZEND_STRS("PERM_ALL") - 1, ZOO_PERM_ALL TSRMLS_CC);
 }
+/* }}} */
 
+/* {{{ zookeeper_client_create_object */
 #if PHP_VERSION_ID >= 70000
 zend_object *
 #else
@@ -184,20 +197,15 @@ zend_object_value
 	storage_object->object.handlers = &zookeeper_client_object_handlers;
 #endif
 
-
-#if PHP_VERSION_ID >= 70000
-	zookeeper_client_object_handlers.offset = XtOffsetOf(zookeeper_client_storage_object, object);
-#endif
-
 #if PHP_VERSION_ID >= 70000
 	return &storage_object->object;
 #else
     return retval;
 #endif
 }
+/* }}} */
 
-
-
+/* {{{ zookeeper_client_free_object */
 void zookeeper_client_free_object(
 #if PHP_VERSION_ID >= 70000
         zend_object *object
@@ -218,8 +226,12 @@ void zookeeper_client_free_object(
     storage_object->zk_handle = NULL;
 
     zend_object_std_dtor(&storage_object->object TSRMLS_CC);
+
+#if PHP_VERSION_ID < 70000
     efree(storage_object);
+#endif
 }
+/* }}} */
 
 // ---- PHP Methods ----
 
