@@ -96,8 +96,8 @@ void register_zookeeper_client_class(TSRMLS_D)
 			TSRMLS_CC);
     zookeeper_client_class_entry->create_object = zookeeper_client_create_object;
 
-#if PHP_VERSION_ID >= 70000
 	memcpy(&zookeeper_client_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
+#if PHP_VERSION_ID >= 70000
 	zookeeper_client_object_handlers.offset = XtOffsetOf(zookeeper_client_storage_object, object);
 	zookeeper_client_object_handlers.free_obj = (zend_object_free_obj_t)zookeeper_client_free_object;
 #endif
