@@ -73,3 +73,29 @@ Set Acls
         );
     $zc->setAcls('/zookeeper/node0', $acls);
 
+
+After a fork
+------------
+
+::
+
+    <?php
+    $zc = new ZookeeperClient();
+    $zc->connect('localhost:2181');
+    var_dump($zc->get('/zookeeper'));
+
+    $pid = pcntl_fork();
+    if ($pid < 0)
+        die("Error");
+    elseif ($pid == 0) {// child
+        $zc->close();
+        $zc->connect('localhost:2181');
+
+        var_dump($zc->get('/zookeeper'));
+        exit;
+    }
+
+    // parent
+    var_dump($zc->get('/zookeeper'));
+
+    ?>
