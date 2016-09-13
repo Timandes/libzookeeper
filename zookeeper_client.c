@@ -245,6 +245,8 @@ PHP_METHOD(ZookeeperClient, connect)
 #if PHP_VERSION_ID >= 70000
     zend_string *hosts_string = NULL;
 #endif
+    char *err_msg = NULL;
+    int err_msg_max_len = 100;
 
     storage = FETCH_ZOOKEEPER_CLIENT_OBJECT_BY_THIS(me);
 
@@ -266,7 +268,12 @@ PHP_METHOD(ZookeeperClient, connect)
 #endif
     zk_handle = zookeeper_init(hosts, NULL, 10000, 0, NULL, 0);
     if (NULL == zk_handle) {
-        throw_zookeeper_client_exception("Fail to initialize zookeeper client", LIBZOOKEEPER_ERROR_INIT_FAILURE TSRMLS_CC);
+        err_msg = (char *)ecalloc(err_msg_max_len, sizeof(char));
+        memset(err_msg, 0, err_msg_max_len);
+        sprintf(err_msg, "Fail to initialize zookeeper client (hosts=%s)", hosts);
+        throw_zookeeper_client_exception(err_msg, LIBZOOKEEPER_ERROR_INIT_FAILURE TSRMLS_CC);
+        efree(err_msg);
+        err_msg = NULL;
         return;
     }
 

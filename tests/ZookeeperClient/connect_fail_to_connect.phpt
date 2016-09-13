@@ -12,4 +12,4 @@ try {
 }
 ?>
 --EXPECTF--
-[#1] Fail to initialize zookeeper client
+[#1] Fail to initialize zookeeper client (hosts=localhost:0)
